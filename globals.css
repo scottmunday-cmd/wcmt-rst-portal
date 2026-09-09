@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --wcmt-navy: #0b2545;
+  --wcmt-ocean: #134074;
+  --wcmt-coastal: #4ea5d9;
+  --wcmt-orange: #f26b38;
+  --wcmt-green: #2bb673;
+  --wcmt-bg: #f5f7fa;
+}
+
+body {
+  background-color: var(--wcmt-bg);
+  color: var(--wcmt-navy);
+}

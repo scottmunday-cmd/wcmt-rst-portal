@@ -1,0 +1,132 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [smsConsent, setSmsConsent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    // The `profiles` row itself should be created by a database trigger on
+    // auth.users insert (not written here) so it can never be skipped or
+    // spoofed by the client. This call just passes along the extra fields
+    // via user metadata for that trigger to read.
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+          sms_consent: smsConsent,
+        },
+      },
+    });
+
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    router.push("/dashboard");
+    router.refresh();
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-wcmt-bg px-6 py-12">
+      <Card className="w-full max-w-sm">
+        <h1 className="font-heading text-xl font-bold text-wcmt-navy">Create Your Account</h1>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-wcmt-navy" htmlFor="firstName">
+                First name
+              </label>
+              <input
+                id="firstName"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-wcmt-navy" htmlFor="lastName">
+                Last name
+              </label>
+              <input
+                id="lastName"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-wcmt-navy" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-wcmt-navy" htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <label className="flex items-start gap-2 text-xs text-slate-600">
+            <input
+              type="checkbox"
+              checked={smsConsent}
+              onChange={(e) => setSmsConsent(e.target.checked)}
+              className="mt-0.5"
+            />
+            I agree to receive SMS reminders about my bookings and assessments.
+          </label>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Creating account…" : "Create Account"}
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-sm text-slate-500">
+          Already have an account?{" "}
+          <Link href="/login" className="font-medium text-wcmt-orange">
+            Log in
+          </Link>
+        </p>
+      </Card>
+    </div>
+  );
+}
