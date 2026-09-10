@@ -44,6 +44,7 @@ external process for staff's own visibility.
    - `supabase/migrations/0003_seed_reference_data.sql`
    - `supabase/migrations/0004_update_products.sql`
    - `supabase/migrations/0005_location_travel_surcharge.sql`
+   - `supabase/migrations/0006_wire_stripe_and_promote_bundle.sql`
 4. **Create matching Products and Prices in Stripe** (Products → Add
    product) for the three rows seeded into the `products` table, then
    paste each `stripe_product_id`/`stripe_price_id` into that row from

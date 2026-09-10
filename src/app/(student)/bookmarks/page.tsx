@@ -14,7 +14,14 @@ export default async function BookmarksPage() {
     const { data, error } = await supabase
       .from("bookmarks")
       .select("article_id, reference_articles(title)")
-      .eq("profile_id", userData.user.id);
+      .eq("profile_id", userData.user.id)
+      // Without generated Database types wired into createClient() (see the
+      // note at the top of src/types/database.ts), supabase-js can't tell
+      // this is a many-to-one join and infers reference_articles as an
+      // array — it's actually a single object (or null) at runtime, since
+      // bookmarks.article_id has one matching reference_articles row.
+      // .returns() asserts the real shape instead of the guessed one.
+      .returns<{ article_id: number; reference_articles: { title: string } | null }[]>();
     if (error) throw error;
     bookmarks = data ?? [];
   } catch {

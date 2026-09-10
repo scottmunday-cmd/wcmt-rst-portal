@@ -1,3 +1,4 @@
+import { clsx } from "clsx";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
@@ -12,7 +13,14 @@ export default async function HomePage() {
   // products/assessment_locations are publicly readable while active (see
   // the *_read_active RLS policies) — the anon-key client is enough here.
   const [{ data: products }, { data: locations }] = await Promise.all([
-    supabase.from("products").select("*").eq("active", true).order("price_cents").returns<Product[]>(),
+    supabase
+      .from("products")
+      .select("*")
+      .eq("active", true)
+      // Featured (promoted) product first, then cheapest to most expensive.
+      .order("featured", { ascending: false })
+      .order("price_cents")
+      .returns<Product[]>(),
     supabase
       .from("assessment_locations")
       .select("*")
@@ -94,7 +102,18 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {(products ?? []).map((product) => (
-              <Card key={product.id} className="flex flex-col">
+              <Card
+                key={product.id}
+                className={clsx(
+                  "relative flex flex-col",
+                  product.featured && "border-2 border-wcmt-orange shadow-md"
+                )}
+              >
+                {product.featured && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-wcmt-orange px-3 py-1 text-xs font-heading font-semibold text-white">
+                    Best Value
+                  </span>
+                )}
                 <h3 className="font-heading font-semibold text-wcmt-navy">{product.name}</h3>
                 <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">
                   ${(product.price_cents / 100).toFixed(2)}
@@ -104,6 +123,11 @@ export default async function HomePage() {
                   <p className="text-xs text-slate-500">Travel surcharge may apply outside Perth metro</p>
                 )}
                 <p className="mt-2 flex-1 text-sm text-slate-600">{product.description}</p>
+                {product.featured && (
+                  <p className="mt-2 text-sm font-medium text-wcmt-navy">
+                    ✓ Includes online content &amp; lifetime reference access after certification
+                  </p>
+                )}
                 <div className="mt-4">
                   <BuyButton productSlug={product.slug} locations={locationOptionsFor(product)} />
                 </div>
