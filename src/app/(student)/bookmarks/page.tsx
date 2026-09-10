@@ -14,7 +14,8 @@ export default async function BookmarksPage() {
     const { data, error } = await supabase
       .from("bookmarks")
       .select("article_id, reference_articles(title)")
-      .eq("profile_id", userData.user.id);
+      .eq("profile_id", userData.user.id)
+      .returns<{ article_id: number; reference_articles: { title: string } | null }[]>();
     if (error) throw error;
     bookmarks = data ?? [];
   } catch {
