@@ -1,46 +1,44 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
-import type { ReferenceArticle } from "@/types/database";
 
-export default async function ReferenceLibraryPage() {
+export default async function BookmarksPage() {
   const supabase = await createClient();
-  let articles: ReferenceArticle[] = [];
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) redirect("/login");
+
+  let bookmarks: { article_id: number; reference_articles: { title: string } | null }[] = [];
   let loadError: string | null = null;
 
   try {
     const { data, error } = await supabase
-      .from("reference_articles")
-      .select("*")
-      .eq("active", true)
-      .order("category");
+      .from("bookmarks")
+      .select("article_id, reference_articles(title)")
+      .eq("profile_id", userData.user.id);
     if (error) throw error;
-    articles = data ?? [];
+    bookmarks = data ?? [];
   } catch {
-    loadError = "The reference library hasn't been populated yet.";
+    loadError = "Couldn't load bookmarks yet.";
   }
-
-  const byCategory = articles.reduce<Record<string, ReferenceArticle[]>>((acc, article) => {
-    (acc[article.category] ??= []).push(article);
-    return acc;
-  }, {});
 
   return (
     <div className="space-y-4">
-      <h1 className="font-heading text-2xl font-bold text-wcmt-navy">Reference Library</h1>
-      <p className="text-sm text-slate-600">Lifetime access after course completion.</p>
+      <h1 className="font-heading text-2xl font-bold text-wcmt-navy">My Bookmarks</h1>
       {loadError && (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
       )}
-      {Object.entries(byCategory).map(([category, items]) => (
-        <div key={category}>
-          <h2 className="font-heading font-semibold text-wcmt-navy">{category}</h2>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {items.map((article) => (
-              <Card key={article.id} className="text-sm">{article.title}</Card>
-            ))}
-          </div>
-        </div>
-      ))}
+      {!loadError && bookmarks.length === 0 && (
+        <p className="text-sm text-slate-500">
+          Nothing bookmarked yet — save lessons and reference pages as you go.
+        </p>
+      )}
+      <div className="grid gap-2 sm:grid-cols-2">
+        {bookmarks.map((b) => (
+          <Card key={b.article_id} className="text-sm">
+            {b.reference_articles?.title ?? `Article #${b.article_id}`}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

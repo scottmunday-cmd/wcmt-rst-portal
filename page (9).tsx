@@ -1,59 +1,79 @@
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
-import type { Lesson, Module } from "@/types/database";
+import { Button } from "@/components/ui/Button";
 
-export default async function ModuleDetailPage({
-  params,
-}: {
-  params: Promise<{ moduleId: string }>;
-}) {
-  const { moduleId } = await params;
-  const supabase = await createClient();
+export default function LoginPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  let module_: Module | null = null;
-  let lessons: Lesson[] = [];
-  let loadError: string | null = null;
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
-  try {
-    const [{ data: moduleData, error: moduleErr }, { data: lessonData, error: lessonErr }] =
-      await Promise.all([
-        supabase.from("modules").select("*").eq("id", moduleId).maybeSingle(),
-        supabase
-          .from("lessons")
-          .select("*")
-          .eq("module_id", moduleId)
-          .eq("active", true)
-          .order("sort_order"),
-      ]);
-    if (moduleErr) throw moduleErr;
-    if (lessonErr) throw lessonErr;
-    module_ = moduleData;
-    lessons = lessonData ?? [];
-  } catch {
-    loadError = "Couldn't load this module yet — check that content has been imported.";
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="font-heading text-2xl font-bold text-wcmt-navy">
-        {module_?.title ?? `Module ${moduleId}`}
-      </h1>
-      {loadError && (
-        <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
-      )}
-      <div className="space-y-3">
-        {lessons.map((lesson, i) => (
-          <Card key={lesson.id}>
-            <p className="text-xs font-semibold uppercase text-wcmt-coastal">
-              Lesson {i + 1}
-            </p>
-            <h2 className="font-heading font-semibold text-wcmt-navy">{lesson.title}</h2>
-          </Card>
-        ))}
-        {!loadError && lessons.length === 0 && (
-          <p className="text-sm text-slate-500">No lessons in this module yet.</p>
-        )}
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-wcmt-bg px-6">
+      <Card className="w-full max-w-sm">
+        <h1 className="font-heading text-xl font-bold text-wcmt-navy">Log In</h1>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="text-sm font-medium text-wcmt-navy" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-wcmt-navy" htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? "Logging in…" : "Log In"}
+          </Button>
+        </form>
+        <p className="mt-4 text-center text-sm text-slate-500">
+          New here?{" "}
+          <Link href="/register" className="font-medium text-wcmt-orange">
+            Create an account
+          </Link>
+        </p>
+      </Card>
     </div>
   );
 }

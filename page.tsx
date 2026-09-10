@@ -1,16 +1,47 @@
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
+import type { AssessmentLocation, Product } from "@/types/database";
 
 const HOW_IT_WORKS = ["Enrol", "Learn", "Practice", "Assess", "Lifetime Access"];
 
-const PRODUCTS = [
-  { name: "RST Student Portal", price: "$195", blurb: "Online training, practice quizzes, mock exams, and lifetime reference library access." },
-  { name: "Assessment Only", price: "$100", blurb: "Already confident? Book the practical assessment on its own." },
-  { name: "Training + Assessment Bundle", price: "$275", blurb: "The Student Portal and assessment booking together." },
-  { name: "Private Tuition", price: "$450", blurb: "One-on-one instruction for a tailored pace." },
-];
+export default async function HomePage() {
+  const supabase = await createClient();
 
-export default function HomePage() {
+  // products/assessment_locations are publicly readable while active (see
+  // the *_read_active RLS policies) — the anon-key client is enough here.
+  const [{ data: products }, { data: locations }] = await Promise.all([
+    supabase.from("products").select("*").eq("active", true).order("price_cents").returns<Product[]>(),
+    supabase
+      .from("assessment_locations")
+      .select("*")
+      .eq("active", true)
+      .order("name")
+      .returns<AssessmentLocation[]>(),
+  ]);
+
+  // settings is admin-only under RLS (see 0002) — this one read uses the
+  // service-role client because a public page still needs the surcharge
+  // unit to show real per-location prices. Safe: this runs server-side
+  // only, in a Server Component, never shipped to the browser.
+  const admin = createAdminClient();
+  const { data: unitSetting } = await admin
+    .from("settings")
+    .select("setting_value")
+    .eq("setting_key", "travel_surcharge_unit_cents")
+    .maybeSingle();
+  const surchargeUnitCents = Number(unitSetting?.setting_value ?? 5000);
+
+  function locationOptionsFor(product: Product): BuyButtonLocation[] | undefined {
+    if (!product.requires_location || !locations) return undefined;
+    return locations.map((loc) => ({
+      id: loc.id,
+      name: loc.name,
+      priceCents: product.price_cents + loc.travel_surcharge_multiplier * surchargeUnitCents,
+    }));
+  }
+
   return (
     <>
       <section className="bg-gradient-to-b from-wcmt-navy to-wcmt-ocean px-6 py-20 text-white">
@@ -61,14 +92,28 @@ export default function HomePage() {
             Prices and availability are managed by WCMT and may change —
             current pricing is always shown at checkout.
           </p>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PRODUCTS.map((product) => (
-              <Card key={product.name} className="flex flex-col">
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {(products ?? []).map((product) => (
+              <Card key={product.id} className="flex flex-col">
                 <h3 className="font-heading font-semibold text-wcmt-navy">{product.name}</h3>
-                <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">{product.price}</p>
-                <p className="mt-2 flex-1 text-sm text-slate-600">{product.blurb}</p>
+                <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">
+                  ${(product.price_cents / 100).toFixed(2)}
+                  {product.requires_location && <span className="text-base font-medium">+</span>}
+                </p>
+                {product.requires_location && (
+                  <p className="text-xs text-slate-500">Travel surcharge may apply outside Perth metro</p>
+                )}
+                <p className="mt-2 flex-1 text-sm text-slate-600">{product.description}</p>
+                <div className="mt-4">
+                  <BuyButton productSlug={product.slug} locations={locationOptionsFor(product)} />
+                </div>
               </Card>
             ))}
+            {(!products || products.length === 0) && (
+              <p className="text-sm text-slate-500">
+                No products yet — check the migrations have run against this Supabase project.
+              </p>
+            )}
           </div>
         </div>
       </section>

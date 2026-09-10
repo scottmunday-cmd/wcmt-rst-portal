@@ -1,43 +1,63 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import type { AssessmentSlot } from "@/types/database";
 
-export default async function BookmarksPage() {
+export default async function AssessmentPage() {
   const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user) redirect("/login");
-
-  let bookmarks: { article_id: number; reference_articles: { title: string } | null }[] = [];
+  let slots: AssessmentSlot[] = [];
   let loadError: string | null = null;
 
   try {
     const { data, error } = await supabase
-      .from("bookmarks")
-      .select("article_id, reference_articles(title)")
-      .eq("profile_id", userData.user.id);
+      .from("assessment_slots")
+      .select("*")
+      .eq("active", true)
+      .order("assessment_date");
     if (error) throw error;
-    bookmarks = data ?? [];
+    slots = data ?? [];
   } catch {
-    loadError = "Couldn't load bookmarks yet.";
+    loadError = "Assessment slots haven't been loaded into the database yet.";
   }
 
   return (
     <div className="space-y-4">
-      <h1 className="font-heading text-2xl font-bold text-wcmt-navy">My Bookmarks</h1>
+      <h1 className="font-heading text-2xl font-bold text-wcmt-navy">Book Your Assessment</h1>
+      <p className="text-sm text-slate-600">
+        You&apos;re not required to book an assessment straight away — study first,
+        then book when you&apos;re ready.
+      </p>
       {loadError && (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
       )}
-      {!loadError && bookmarks.length === 0 && (
-        <p className="text-sm text-slate-500">
-          Nothing bookmarked yet — save lessons and reference pages as you go.
-        </p>
-      )}
-      <div className="grid gap-2 sm:grid-cols-2">
-        {bookmarks.map((b) => (
-          <Card key={b.article_id} className="text-sm">
-            {b.reference_articles?.title ?? `Article #${b.article_id}`}
-          </Card>
-        ))}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {slots.map((slot) => {
+          const full = slot.booked_count >= slot.capacity;
+          return (
+            <Card key={slot.id} className="flex items-center justify-between">
+              <div>
+                <p className="font-heading font-semibold text-wcmt-navy">
+                  {slot.assessment_date} · {slot.assessment_time}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {full ? "Fully booked" : `${slot.capacity - slot.booked_count} spots left`}
+                </p>
+              </div>
+              {/*
+                Booking submits to a server action / API route that inserts
+                into assessment_bookings — capacity is enforced atomically by
+                the fn_book_assessment_slot() trigger from the build pack,
+                not by this UI, so this button is safe to wire up directly.
+              */}
+              <Button disabled={full} variant={full ? "outline" : "primary"}>
+                {full ? "Full" : "Book"}
+              </Button>
+            </Card>
+          );
+        })}
+        {!loadError && slots.length === 0 && (
+          <p className="text-sm text-slate-500">No assessment slots published yet.</p>
+        )}
       </div>
     </div>
   );

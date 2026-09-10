@@ -50,8 +50,38 @@ export interface Product {
   name: string;
   description: string | null;
   price_cents: number;
+  // True for products whose final price depends on which
+  // assessment_location is picked at checkout (travel surcharge) — see
+  // AssessmentLocation.travel_surcharge_multiplier.
+  requires_location: boolean;
   featured: boolean;
   active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AssessmentLocation {
+  id: string;
+  name: string;
+  address: string | null;
+  // Number of surcharge units (see settings.travel_surcharge_unit_cents)
+  // added to a location-priced product's base price for this location.
+  // 0 = standard/home base (Perth metro).
+  travel_surcharge_multiplier: number;
+  active: boolean;
+}
+
+export interface Order {
+  id: string;
+  profile_id: string;
+  product_id: string;
+  amount_cents: number;
+  status: OrderStatus;
+  stripe_session_id: string | null;
+  coupon_code: string | null;
+  // Which location's surcharge (if any) this order's amount_cents was
+  // based on. Null for products that don't require a location.
+  assessment_location_id: string | null;
   created_at: string;
   updated_at: string;
 }
