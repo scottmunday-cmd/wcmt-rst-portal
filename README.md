@@ -98,6 +98,7 @@ Found during Scott's first live checkout test (11 September 2026): modules,
 lessons, the reference library and quiz questions were readable by *any*
 signed-up account, paid or not — nothing anywhere actually checked payment
 status. `0008_content_paywall.sql` fixes this at the database level (a
+`has_paid_access()` function wired into the RLS policies for those tables,
 requiring at least one `orders` row with `status = 'paid'`), and
 `src/app/(student)/layout.tsx` mirrors it with a friendly "you haven't
 purchased a course yet" screen instead of pages that would otherwise just
