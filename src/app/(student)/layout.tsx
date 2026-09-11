@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+import { LogoutButton } from "@/components/LogoutButton";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -69,7 +70,9 @@ export default async function StudentLayout({
             <Link href="/faq" className="underline">
               Get in touch
             </Link>
-            .
+            . Testing with the wrong account?{" "}
+            <LogoutButton className="text-wcmt-orange underline" /> and log
+            back in with the right one.
           </p>
         </Card>
       </div>
@@ -80,15 +83,16 @@ export default async function StudentLayout({
     <div className="min-h-screen bg-wcmt-bg">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/dashboard" className="font-heading font-bold text-wcmt-navy">
+          <Link href="/" className="font-heading font-bold text-wcmt-navy">
             West Coast Marine Training
           </Link>
-          <nav className="flex gap-5 text-sm font-medium text-wcmt-navy">
+          <nav className="flex items-center gap-5 text-sm font-medium text-wcmt-navy">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-wcmt-orange">
                 {item.label}
               </Link>
             ))}
+            <LogoutButton className="text-wcmt-navy hover:text-wcmt-orange" />
           </nav>
         </div>
       </header>

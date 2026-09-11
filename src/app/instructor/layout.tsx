@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function InstructorLayout({
   children,
@@ -30,9 +31,15 @@ export default async function InstructorLayout({
     <div className="min-h-screen bg-wcmt-bg">
       <header className="border-b border-slate-200 bg-wcmt-navy text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/instructor/students" className="font-heading font-bold">
+          <Link href="/" className="font-heading font-bold">
             WCMT — Instructor Portal
           </Link>
+          <nav className="flex items-center gap-5 text-sm">
+            <Link href="/instructor/students" className="hover:text-wcmt-coastal">
+              Students
+            </Link>
+            <LogoutButton className="text-white hover:text-wcmt-coastal" />
+          </nav>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
