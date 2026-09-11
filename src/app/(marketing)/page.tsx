@@ -91,7 +91,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-16">
+      <section id="pricing" className="bg-white px-6 py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center font-heading text-2xl font-bold text-wcmt-navy">
             Courses &amp; Pricing

@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [smsConsent, setSmsConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +28,7 @@ export default function RegisterPage() {
     // auth.users insert (not written here) so it can never be skipped or
     // spoofed by the client. This call just passes along the extra fields
     // via user metadata for that trigger to read.
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -44,8 +45,39 @@ export default function RegisterPage() {
       setError(error.message);
       return;
     }
+
+    // If the Supabase project has "Confirm email" turned on (the default
+    // for a new project), signUp() succeeds but returns no session until
+    // the person clicks the confirmation link in their email — data.user
+    // exists but data.session is null. Redirecting to /dashboard in that
+    // state just bounces them straight to /login looking logged-out,
+    // which is confusing right after "successfully" creating an account.
+    if (!data.session) {
+      setCheckEmail(true);
+      return;
+    }
+
     router.push("/dashboard");
     router.refresh();
+  }
+
+  if (checkEmail) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-wcmt-bg px-6 py-12">
+        <Card className="w-full max-w-sm text-center">
+          <h1 className="font-heading text-xl font-bold text-wcmt-navy">Almost there</h1>
+          <p className="mt-3 text-sm text-slate-600">
+            We&apos;ve sent a confirmation link to <strong>{email}</strong>. Click
+            it to activate your account, then come back and log in.
+          </p>
+          <p className="mt-4 text-center text-sm text-slate-500">
+            <Link href="/login" className="font-medium text-wcmt-orange">
+              Go to Log In
+            </Link>
+          </p>
+        </Card>
+      </div>
+    );
   }
 
   return (

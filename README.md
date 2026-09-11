@@ -45,6 +45,8 @@ external process for staff's own visibility.
    - `supabase/migrations/0004_update_products.sql`
    - `supabase/migrations/0005_location_travel_surcharge.sql`
    - `supabase/migrations/0006_wire_stripe_and_promote_bundle.sql`
+   - `supabase/migrations/0007_correct_prices_and_spelling.sql`
+   - `supabase/migrations/0008_content_paywall.sql`
 4. **Create matching Products and Prices in Stripe** (Products → Add
    product) for the three rows seeded into the `products` table, then
    paste each `stripe_product_id`/`stripe_price_id` into that row from
@@ -89,6 +91,32 @@ no migration, no redeploy needed.
 `travel_surcharge_unit_cents` row (in cents, so `5000` = $50). Every
 location's surcharge scales immediately since they only store a
 multiplier.
+
+## Content paywall
+
+Found during Scott's first live checkout test (11 September 2026): modules,
+lessons, the reference library and quiz questions were readable by *any*
+signed-up account, paid or not — nothing anywhere actually checked payment
+status. `0008_content_paywall.sql` fixes this at the database level (a
+requiring at least one `orders` row with `status = 'paid'`), and
+`src/app/(student)/layout.tsx` mirrors it with a friendly "you haven't
+purchased a course yet" screen instead of pages that would otherwise just
+look empty. Staff (`admin`/`instructor` role) always have access. The
+`src/app/admin` and `src/app/instructor` layouts also picked up a real
+login/role check at the same time — they had none before; the underlying
+tables were still RLS-protected, but the page shell itself rendered for
+anyone.
+
+## Checkout success/cancel pages
+
+`/api/checkout` has always redirected to `/checkout/success` and
+`/checkout/cancel` after Stripe, but those two pages were never actually
+built — a completed real payment was hitting a 404. They now exist under
+`src/app/(marketing)/checkout/`. Success reads the `session_id` Stripe
+appends to the URL and looks up that order (RLS-scoped, so a customer can
+only ever see their own); since the webhook that flips an order to "paid"
+can land a moment after the redirect, the page handles "still pending"
+gracefully rather than assuming paid.
 
 ## A note on this scaffold
 

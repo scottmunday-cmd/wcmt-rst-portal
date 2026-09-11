@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { Card } from "@/components/ui/Card";
+import { ButtonLink } from "@/components/ui/Button";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -8,11 +12,70 @@ const NAV = [
   { href: "/bookmarks", label: "Bookmarks" },
 ];
 
-export default function StudentLayout({
+export default async function StudentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) redirect("/login");
+
+  // This is the UI-level mirror of the RLS gate added in
+  // 0008_content_paywall.sql (has_paid_access()) — a signed-up-but-unpaid
+  // account previously landed here and every page underneath rendered
+  // fine, because nothing anywhere actually checked payment status.
+  // The database policies are the real security boundary; this check
+  // just means an unpaid visitor sees an honest "you haven't bought
+  // this yet" screen instead of empty-looking pages where the content
+  // silently failed to load.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userData.user.id)
+    .single<{ role: string }>();
+
+  const isStaff = profile?.role === "admin" || profile?.role === "instructor";
+
+  let hasAccess = isStaff;
+  if (!hasAccess) {
+    const { data: paidOrder } = await supabase
+      .from("orders")
+      .select("id")
+      .eq("profile_id", userData.user.id)
+      .eq("status", "paid")
+      .limit(1)
+      .maybeSingle();
+    hasAccess = !!paidOrder;
+  }
+
+  if (!hasAccess) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-wcmt-bg px-6">
+        <Card className="max-w-md text-center">
+          <h1 className="font-heading text-xl font-bold text-wcmt-navy">
+            You haven&apos;t purchased a course yet
+          </h1>
+          <p className="mt-3 text-sm text-slate-600">
+            Your account is set up, but modules, the reference library and
+            assessment booking only unlock once you&apos;ve bought Study
+            Only, RST Assessment, or Private Tuition.
+          </p>
+          <ButtonLink href="/#pricing" variant="primary" className="mt-6">
+            View Courses
+          </ButtonLink>
+          <p className="mt-4 text-xs text-slate-400">
+            Already paid and seeing this by mistake?{" "}
+            <Link href="/faq" className="underline">
+              Get in touch
+            </Link>
+            .
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-wcmt-bg">
       <header className="border-b border-slate-200 bg-white">
