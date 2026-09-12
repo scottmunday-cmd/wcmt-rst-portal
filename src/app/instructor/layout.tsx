@@ -41,6 +41,14 @@ export default async function InstructorLayout({
             <Link href="/instructor/schedule" className="hover:text-wcmt-coastal">
               Schedule
             </Link>
+            {profile?.role === "admin" && (
+              <Link href="/admin/products" className="hover:text-wcmt-coastal">
+                Admin Portal
+              </Link>
+            )}
+            <Link href="/dashboard" className="hover:text-wcmt-coastal">
+              Student View
+            </Link>
             <LogoutButton className="text-white hover:text-wcmt-coastal" />
           </nav>
         </div>

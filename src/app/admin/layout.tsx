@@ -6,6 +6,8 @@ import { LogoutButton } from "@/components/LogoutButton";
 const NAV = [
   { href: "/admin/products", label: "Products" },
   { href: "/admin/bookings", label: "Bookings" },
+  { href: "/instructor/schedule", label: "Schedule" },
+  { href: "/dashboard", label: "Student View" },
 ];
 
 export default async function AdminLayout({

@@ -92,6 +92,27 @@ export default async function StudentLayout({
                 {item.label}
               </Link>
             ))}
+            {/*
+              Found 12 September 2026: Scott's account was promoted to
+              admin directly in the database, but this nav never had a
+              link into the Admin/Instructor portals for any role — so a
+              staff account logging in here saw exactly the same student
+              nav as before, with no way to discover /admin or
+              /instructor short of typing the URL directly. isStaff
+              (defined above, already used to bypass the paywall screen)
+              is the same check; this just makes staff-only access
+              visible instead of hidden.
+            */}
+            {profile?.role === "admin" && (
+              <Link href="/admin/products" className="hover:text-wcmt-orange">
+                Admin Portal
+              </Link>
+            )}
+            {isStaff && (
+              <Link href="/instructor/schedule" className="hover:text-wcmt-orange">
+                Instructor Portal
+              </Link>
+            )}
             <LogoutButton className="text-wcmt-navy hover:text-wcmt-orange" />
           </nav>
         </div>
