@@ -25,6 +25,14 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
+    // Logged deliberately: a signature failure previously only showed up as
+    // a 400 in Stripe's dashboard, with no detail on Vercel's side about
+    // *why* verification failed (wrong secret vs. a mangled/truncated body).
+    console.error("[stripe webhook] signature verification failed", {
+      message,
+      bodyLength: body.length,
+      hasSignatureHeader: Boolean(signature),
+    });
     return NextResponse.json({ error: `Webhook signature verification failed: ${message}` }, { status: 400 });
   }
 

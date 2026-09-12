@@ -37,6 +37,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Excludes /api/stripe/webhook: Stripe's signature check needs the exact
+    // raw request body, and this route does its own auth (webhook secret) —
+    // it doesn't need (and shouldn't risk any interference from) the cookie
+    // refresh middleware does for browser-facing pages.
+    "/((?!_next/static|_next/image|favicon.ico|api/stripe/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
