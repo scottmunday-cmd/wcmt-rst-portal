@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +11,6 @@ import { Button } from "@/components/ui/Button";
 // we wait for that instead of assuming a session exists immediately on
 // mount, since detectSessionInUrl runs asynchronously.
 export default function ResetPasswordPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [ready, setReady] = useState(false);
   const [invalidLink, setInvalidLink] = useState(false);
@@ -73,9 +71,13 @@ export default function ResetPasswordPage() {
       return;
     }
     setDone(true);
+    // Same full-page-load fix applied to login/register/logout on 12
+    // September 2026: a client-side router.push/refresh here isn't known
+    // to race with AuthRefresher (updateUser fires USER_UPDATED, which it
+    // doesn't listen for), but there's no reason to keep the one
+    // navigation style in this file that's proven unreliable elsewhere.
     setTimeout(() => {
-      router.push("/dashboard");
-      router.refresh();
+      window.location.href = "/dashboard";
     }, 1500);
   }
 

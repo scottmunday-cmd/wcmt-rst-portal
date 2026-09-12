@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -57,8 +55,11 @@ export default function RegisterPage() {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    // See the comment on the equivalent line in login/page.tsx (12
+    // September 2026 fix) — a client-side router.push/refresh here races
+    // against AuthRefresher's own router.refresh() on the same SIGNED_IN
+    // event, and can leave the button spinning with no visible result.
+    window.location.href = "/dashboard";
   }
 
   if (checkEmail) {

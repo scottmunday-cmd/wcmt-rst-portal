@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,13 +20,20 @@ export default function LoginPage() {
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    setLoading(false);
     if (error) {
+      setLoading(false);
       setError(error.message);
       return;
     }
-    router.push("/dashboard");
-    router.refresh();
+    // A plain client-side router.push("/dashboard") here raced against
+    // AuthRefresher's own router.refresh() (both react to the SIGNED_IN
+    // event this signInWithPassword() call fires) — same bug fixed in
+    // LogoutButton.tsx on 12 September 2026: the two navigations could
+    // collide and leave you stuck looking at the login page with no
+    // error, even though you were actually signed in underneath. A full
+    // page load can't collide with that in-app refresh, since it discards
+    // the current page (and any in-flight client navigation) entirely.
+    window.location.href = "/dashboard";
   }
 
   return (
