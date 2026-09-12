@@ -37,10 +37,30 @@ export async function POST(request: NextRequest) {
       // Idempotency: Stripe can deliver the same event more than once, and
       // this update is a no-op the second time since it targets a specific
       // session id rather than inserting a new row.
-      await supabase
+      //
+      // Logged deliberately: Stripe only cares that this route returns a
+      // 2xx response, so a failed or no-op update here was previously
+      // invisible — the dashboard showed "200 OK / Delivered" even though
+      // nothing in Supabase changed. .select("id") after the update tells
+      // us how many rows actually matched, and any Postgres/RLS error is
+      // logged instead of silently swallowed.
+      const { data: updatedRows, error: updateError } = await supabase
         .from("orders")
         .update({ status: "paid" })
-        .eq("stripe_session_id", session.id);
+        .eq("stripe_session_id", session.id)
+        .select("id");
+
+      if (updateError) {
+        console.error("[stripe webhook] failed to mark order paid", {
+          sessionId: session.id,
+          error: updateError,
+        });
+      } else {
+        console.log("[stripe webhook] checkout.session.completed processed", {
+          sessionId: session.id,
+          matchedOrders: updatedRows?.length ?? 0,
+        });
+      }
       break;
     }
 
