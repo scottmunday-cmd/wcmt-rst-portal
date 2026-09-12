@@ -13,10 +13,18 @@ type AnswerKey = "a" | "b" | "c" | "d";
 // underlying `questions` table, which keeps correct_answer hidden — see
 // 0002_rls_policies.sql / 0008_content_paywall.sql) and the grade_quiz_answer
 // RPC, which is the only thing allowed to know which option is correct.
+//
+// This is the learning tool, so a wrong pick doesn't end the question — it's
+// marked wrong and the student can try again until they land on the right
+// answer, which is what actually locks in the concept before moving on.
+// Score only credits an answer gotten right on the FIRST try, so the running
+// score still means something. (The full-length MockExamQuiz stays one
+// attempt per question on purpose, to mirror the real assessment.)
 export function ModuleQuiz({ moduleId }: { moduleId: number }) {
   const [questions, setQuestions] = useState<QuestionPublic[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [index, setIndex] = useState(0);
+  const [attempted, setAttempted] = useState<Set<AnswerKey>>(new Set());
   const [selected, setSelected] = useState<AnswerKey | null>(null);
   const [correct, setCorrect] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(false);
@@ -46,8 +54,8 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
   }, [moduleId]);
 
   async function choose(letter: AnswerKey) {
-    if (!questions || checking || selected) return;
-    setSelected(letter);
+    if (!questions || checking || correct === true || attempted.has(letter)) return;
+    const isFirstAttempt = attempted.size === 0;
     setChecking(true);
     const supabase = createClient();
     const q = questions[index];
@@ -58,11 +66,16 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
     setChecking(false);
     if (error) {
       setError("Couldn't check that answer — please try again.");
-      setSelected(null);
       return;
     }
-    setCorrect(Boolean(data));
-    if (data) setScore((s) => s + 1);
+    const isCorrect = Boolean(data);
+    setSelected(letter);
+    setCorrect(isCorrect);
+    if (isCorrect) {
+      if (isFirstAttempt) setScore((s) => s + 1);
+    } else {
+      setAttempted((prev) => new Set(prev).add(letter));
+    }
   }
 
   function next() {
@@ -73,12 +86,14 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
       return;
     }
     setIndex((i) => i + 1);
+    setAttempted(new Set());
     setSelected(null);
     setCorrect(null);
   }
 
   function restart() {
     setIndex(0);
+    setAttempted(new Set());
     setSelected(null);
     setCorrect(null);
     setScore(0);
@@ -131,7 +146,7 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
       <Card>
         <h3 className="font-heading text-lg font-semibold text-wcmt-navy">Quiz complete</h3>
         <p className="mt-1 text-sm text-slate-600">
-          You scored {score} out of {questions.length} ({pct}%).
+          You scored {score} out of {questions.length} ({pct}%) on your first try at each question.
         </p>
         <Button variant="outline" className="mt-4" onClick={restart}>
           Try again
@@ -147,6 +162,7 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
     { key: "c", text: q.answer_c },
     { key: "d", text: q.answer_d },
   ];
+  const solved = correct === true;
 
   return (
     <Card>
@@ -156,21 +172,21 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
       <h3 className="mt-1 font-heading font-semibold text-wcmt-navy">{q.question_text}</h3>
       <div className="mt-4 space-y-2">
         {options.map((opt) => {
-          const isSelected = selected === opt.key;
-          const showAsCorrect = selected !== null && correct !== null && isSelected && correct;
-          const showAsWrong = selected !== null && correct !== null && isSelected && !correct;
+          const wasWrong = attempted.has(opt.key);
+          const isRevealedCorrect = solved && selected === opt.key;
+          const disabled = wasWrong || solved || checking;
           return (
             <button
               key={opt.key}
               type="button"
-              disabled={selected !== null || checking}
+              disabled={disabled}
               onClick={() => choose(opt.key)}
               className={clsx(
                 "block w-full rounded-md border px-4 py-2 text-left text-sm transition-colors",
-                !selected && "border-slate-200 hover:border-wcmt-coastal",
-                showAsCorrect && "border-wcmt-green bg-green-50 text-wcmt-green",
-                showAsWrong && "border-red-400 bg-red-50 text-red-700",
-                selected && !isSelected && "border-slate-200 opacity-60"
+                !wasWrong && !isRevealedCorrect && "border-slate-200 hover:border-wcmt-coastal",
+                isRevealedCorrect && "border-wcmt-green bg-green-50 text-wcmt-green",
+                wasWrong && "border-red-400 bg-red-50 text-red-700",
+                solved && !isRevealedCorrect && "opacity-60"
               )}
             >
               <span className="mr-2 font-semibold uppercase">{opt.key}.</span>
@@ -179,14 +195,16 @@ export function ModuleQuiz({ moduleId }: { moduleId: number }) {
           );
         })}
       </div>
-      {selected !== null && correct !== null && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className={clsx("text-sm font-medium", correct ? "text-wcmt-green" : "text-red-700")}>
-            {correct ? "Correct!" : "Not quite."}
+      {correct !== null && (
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <p className={clsx("text-sm font-medium", solved ? "text-wcmt-green" : "text-red-700")}>
+            {solved ? "Correct!" : "Not quite — try again."}
           </p>
-          <Button variant="primary" onClick={next}>
-            {index + 1 >= questions.length ? "See results" : "Next question"}
-          </Button>
+          {solved && (
+            <Button variant="primary" onClick={next}>
+              {index + 1 >= questions.length ? "See results" : "Next question"}
+            </Button>
+          )}
         </div>
       )}
     </Card>

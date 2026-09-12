@@ -2,6 +2,28 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ModuleQuiz } from "@/components/ModuleQuiz";
 import { MockExamQuiz } from "@/components/MockExamQuiz";
+import { LessonAudio } from "@/components/LessonAudio";
+import { NavigationLightArcs } from "@/components/diagrams/NavigationLightArcs";
+import {
+  LateralMarksDiagram,
+  IsolatedDangerMarkDiagram,
+  SafeWaterMarkDiagram,
+  CardinalMarksDiagram,
+  SpecialMarkDiagram,
+  LeadsDiagram,
+} from "@/components/diagrams/BuoyageDiagrams";
+import { RSTPathwayDiagram, PassMarkGauge } from "@/components/diagrams/IntroPathwayDiagram";
+import { BloodAlcoholGauge, SpeedZoneDiagram } from "@/components/diagrams/RulesDiagrams";
+import { GiveWayDiagram, SoundSignalDiagram } from "@/components/diagrams/CollisionDiagrams";
+import { MaintenanceCycleDiagram } from "@/components/diagrams/MaintenanceDiagram";
+import {
+  LifejacketLevelsDiagram,
+  DistressSignalRow,
+  RadioUrgencyDiagram,
+} from "@/components/diagrams/SafetyEquipmentDiagrams";
+import { FuelPlanPieChart, StabilityDiagram } from "@/components/diagrams/SafeOperationsDiagrams";
+import { CapsizeResponseDiagram, HelpHuddleDiagram } from "@/components/diagrams/EmergencyDiagrams";
+import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagram";
 import type { Lesson, Module } from "@/types/database";
 
 // The Mock Assessment module (content/modules/build_content.py, sort_order
@@ -9,6 +31,105 @@ import type { Lesson, Module } from "@/types/database";
 // exam from every other module's bank instead, so it gets the dedicated
 // MockExamQuiz component rather than the per-module ModuleQuiz.
 const MOCK_ASSESSMENT_SORT_ORDER = 11;
+
+// Diagrams live in code (not the lessons.content text column) so they can be
+// original hand-built SVG/CSS rather than images copied from the workbook or
+// exam papers. Keyed by (module sort_order, lesson sort_order) — see
+// content/modules/build_content.py for which lesson is which.
+function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
+  // Module 1 — Introduction
+  if (moduleSortOrder === 1 && lessonSortOrder === 2) {
+    return (
+      <div className="space-y-3">
+        <RSTPathwayDiagram />
+        <div className="grid grid-cols-2 gap-3">
+          <PassMarkGauge label="Theory test" passMark={34} total={40} />
+          <PassMarkGauge label="Practical test" passMark={56} total={62} />
+        </div>
+      </div>
+    );
+  }
+  // Module 2 — Rules & Regulations
+  if (moduleSortOrder === 2 && lessonSortOrder === 1) {
+    return <BloodAlcoholGauge />;
+  }
+  if (moduleSortOrder === 2 && lessonSortOrder === 2) {
+    return <SpeedZoneDiagram />;
+  }
+  // Module 3 — Collision Avoidance
+  if (moduleSortOrder === 3 && lessonSortOrder === 2) {
+    return (
+      <div className="space-y-3">
+        <GiveWayDiagram />
+        <SoundSignalDiagram />
+      </div>
+    );
+  }
+  // Module 4 — Navigation Lights
+  if (moduleSortOrder === 4 && lessonSortOrder === 1) {
+    return <NavigationLightArcs />;
+  }
+  // Module 5 — IALA Buoyage
+  if (moduleSortOrder === 5 && lessonSortOrder === 1) {
+    return (
+      <div className="space-y-3">
+        <LateralMarksDiagram />
+        <div className="grid grid-cols-2 gap-3">
+          <IsolatedDangerMarkDiagram />
+          <SafeWaterMarkDiagram />
+        </div>
+      </div>
+    );
+  }
+  if (moduleSortOrder === 5 && lessonSortOrder === 2) {
+    return <CardinalMarksDiagram />;
+  }
+  if (moduleSortOrder === 5 && lessonSortOrder === 3) {
+    return (
+      <div className="space-y-3">
+        <SpecialMarkDiagram />
+        <LeadsDiagram />
+      </div>
+    );
+  }
+  // Module 6 — Maintenance
+  if (moduleSortOrder === 6 && lessonSortOrder === 2) {
+    return <MaintenanceCycleDiagram />;
+  }
+  // Module 7 — Safety Equipment
+  if (moduleSortOrder === 7 && lessonSortOrder === 1) {
+    return <LifejacketLevelsDiagram />;
+  }
+  if (moduleSortOrder === 7 && lessonSortOrder === 2) {
+    return <DistressSignalRow />;
+  }
+  if (moduleSortOrder === 7 && lessonSortOrder === 3) {
+    return <RadioUrgencyDiagram />;
+  }
+  // Module 8 — Safe Operations
+  if (moduleSortOrder === 8 && lessonSortOrder === 1) {
+    return <FuelPlanPieChart />;
+  }
+  if (moduleSortOrder === 8 && lessonSortOrder === 2) {
+    return <StabilityDiagram />;
+  }
+  // Module 9 — Emergencies
+  if (moduleSortOrder === 9 && lessonSortOrder === 1) {
+    return <CapsizeResponseDiagram />;
+  }
+  if (moduleSortOrder === 9 && lessonSortOrder === 3) {
+    return <HelpHuddleDiagram />;
+  }
+  // Module 10 — Practical Assessment
+  if (moduleSortOrder === 10 && lessonSortOrder === 2) {
+    return <PracticalTasksDiagram />;
+  }
+  // Module 11 — Mock Assessment
+  if (moduleSortOrder === 11 && lessonSortOrder === 1) {
+    return <PassMarkGauge label="Mock assessment pass mark" passMark={34} total={40} />;
+  }
+  return null;
+}
 
 export default async function ModuleDetailPage({
   params,
@@ -52,12 +173,20 @@ export default async function ModuleDetailPage({
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
       )}
       <div className="space-y-3">
-        {lessons.map((lesson, i) => (
+        {lessons.map((lesson, i) => {
+          const diagram = module_ ? lessonDiagram(module_.sort_order, lesson.sort_order) : null;
+          return (
           <Card key={lesson.id}>
-            <p className="text-xs font-semibold uppercase text-wcmt-coastal">
-              Lesson {i + 1}
-            </p>
-            <h2 className="mt-1 font-heading font-semibold text-wcmt-navy">{lesson.title}</h2>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase text-wcmt-coastal">
+                  Lesson {i + 1}
+                </p>
+                <h2 className="mt-1 font-heading font-semibold text-wcmt-navy">{lesson.title}</h2>
+              </div>
+              {lesson.content && <LessonAudio text={lesson.content} />}
+            </div>
+            {diagram && <div className="mt-4">{diagram}</div>}
             {lesson.content && (
               <div className="mt-3 space-y-3 text-sm leading-relaxed text-slate-700">
                 {lesson.content
@@ -80,7 +209,8 @@ export default async function ModuleDetailPage({
               </a>
             )}
           </Card>
-        ))}
+          );
+        })}
         {!loadError && lessons.length === 0 && (
           <p className="text-sm text-slate-500">No lessons in this module yet.</p>
         )}
