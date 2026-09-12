@@ -38,6 +38,9 @@ export default async function InstructorLayout({
             <Link href="/instructor/students" className="hover:text-wcmt-coastal">
               Students
             </Link>
+            <Link href="/instructor/schedule" className="hover:text-wcmt-coastal">
+              Schedule
+            </Link>
             <LogoutButton className="text-white hover:text-wcmt-coastal" />
           </nav>
         </div>

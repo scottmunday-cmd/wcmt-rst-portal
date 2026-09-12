@@ -72,6 +72,46 @@ export async function POST(request: NextRequest) {
       break;
     }
 
+    // Stripe fires this when a Checkout Session's payment window lapses
+    // (24h by default) with no payment — e.g. someone opens the assessment
+    // date-and-location checkout, reserving that seat (see
+    // src/app/api/checkout/route.ts), then just closes the tab instead of
+    // hitting "cancel". Without this, that seat would stay held forever.
+    // The webhook endpoint must have this event type added in the Stripe
+    // Dashboard (Developers → Webhooks → this endpoint → Listen to) for it
+    // to actually arrive — subscribing to checkout.session.completed does
+    // not automatically add this one too.
+    case "checkout.session.expired": {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      const { data: order } = await supabase
+        .from("orders")
+        .select("id, status")
+        .eq("stripe_session_id", session.id)
+        .maybeSingle<{ id: string; status: string }>();
+
+      if (order && order.status === "pending") {
+        await supabase.from("orders").update({ status: "cancelled" }).eq("id", order.id);
+        // Freeing the seat is what fn_book_assessment_slot() actually
+        // reacts to (booked -> cancelled decrements assessment_slots.booked_count);
+        // updating the order alone wouldn't release the capacity.
+        const { error: releaseError } = await supabase
+          .from("assessment_bookings")
+          .update({ status: "cancelled" })
+          .eq("order_id", order.id)
+          .eq("status", "booked");
+
+        if (releaseError) {
+          console.error("[stripe webhook] failed to release expired booking", {
+            sessionId: session.id,
+            orderId: order.id,
+            error: releaseError,
+          });
+        }
+      }
+      break;
+    }
+
     case "price.updated": {
       const price = event.data.object as Stripe.Price;
       await supabase

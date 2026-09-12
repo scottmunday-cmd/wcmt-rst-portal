@@ -54,6 +54,10 @@ export interface Product {
   // assessment_location is picked at checkout (travel surcharge) — see
   // AssessmentLocation.travel_surcharge_multiplier.
   requires_location: boolean;
+  // True for products booked via the assessment_slots calendar (a specific
+  // date + location + capacity) rather than a free pick of any location.
+  // Currently only the in-person assessment — see 0009_assessment_slot_booking.sql.
+  requires_slot: boolean;
   featured: boolean;
   active: boolean;
   created_at: string;
@@ -82,6 +86,9 @@ export interface Order {
   // Which location's surcharge (if any) this order's amount_cents was
   // based on. Null for products that don't require a location.
   assessment_location_id: string | null;
+  // Which assessment_slots row (specific date + location) this order
+  // reserved a seat in, for requires_slot products. Null otherwise.
+  assessment_slot_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -142,6 +149,10 @@ export interface AssessmentBooking {
   student_id: string;
   slot_id: string;
   status: BookingStatus;
+  // The order that reserved this seat — used to release the seat again if
+  // that order's checkout is cancelled/expires unpaid. Null for bookings
+  // created some other way.
+  order_id: string | null;
   booked_at: string;
 }
 

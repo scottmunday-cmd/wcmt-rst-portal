@@ -5,6 +5,12 @@ import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { AssessmentLocation, Product } from "@/types/database";
 
+// requires_slot products (currently just the in-person assessment, see
+// 0009_assessment_slot_booking.sql) no longer buy straight off this page —
+// Scott only wants students booking dates/locations he's actually
+// published to the calendar, so this card sends them to /assessment
+// instead of showing the old "any location, any time" dropdown.
+
 const HOW_IT_WORKS = ["Enrol", "Learn", "Practice", "Assess", "Lifetime Access"];
 
 export default async function HomePage() {
@@ -42,7 +48,7 @@ export default async function HomePage() {
   const surchargeUnitCents = Number(unitSetting?.setting_value ?? 5000);
 
   function locationOptionsFor(product: Product): BuyButtonLocation[] | undefined {
-    if (!product.requires_location || !locations) return undefined;
+    if (product.requires_slot || !product.requires_location || !locations) return undefined;
     return locations.map((loc) => ({
       id: loc.id,
       name: loc.name,
@@ -129,7 +135,13 @@ export default async function HomePage() {
                   </p>
                 )}
                 <div className="mt-4">
-                  <BuyButton productSlug={product.slug} locations={locationOptionsFor(product)} />
+                  {product.requires_slot ? (
+                    <ButtonLink href="/assessment" variant="primary" className="w-full">
+                      Book Now
+                    </ButtonLink>
+                  ) : (
+                    <BuyButton productSlug={product.slug} locations={locationOptionsFor(product)} />
+                  )}
                 </div>
               </Card>
             ))}

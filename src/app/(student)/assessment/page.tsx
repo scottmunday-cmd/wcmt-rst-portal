@@ -1,64 +1,87 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import type { AssessmentSlot } from "@/types/database";
+import { BookingCalendar, type CalendarSlot } from "@/components/BookingCalendar";
 
+interface SlotRow {
+  id: string;
+  assessment_date: string;
+  assessment_time: string;
+  capacity: number;
+  booked_count: number;
+  assessment_locations: { name: string; travel_surcharge_multiplier: number } | null;
+}
+
+// Replaces the old plain "pick any location" flow for the in-person
+// assessment (see BuyButton.tsx / the marketing page's pricing cards,
+// still used as-is for Private Tuition). Scott's ask, 12 September 2026:
+// students were booking locations he had no near-term plan to travel to.
+// Now they can only pick a date+location he's actually published here —
+// see /instructor/schedule for where those get added, and
+// src/app/api/checkout/route.ts for how a pick here reserves the seat
+// and starts payment.
 export default async function AssessmentPage() {
   const supabase = await createClient();
-  let slots: AssessmentSlot[] = [];
+  const today = new Date().toISOString().slice(0, 10);
+
+  let slots: CalendarSlot[] = [];
   let loadError: string | null = null;
 
   try {
-    const { data, error } = await supabase
+    const { data: product, error: productError } = await supabase
+      .from("products")
+      .select("price_cents")
+      .eq("slug", "assessment")
+      .single<{ price_cents: number }>();
+    if (productError || !product) throw productError ?? new Error("assessment product not found");
+
+    const { data: slotRows, error: slotError } = await supabase
       .from("assessment_slots")
-      .select("*")
+      .select(
+        "id, assessment_date, assessment_time, capacity, booked_count, assessment_locations(name, travel_surcharge_multiplier)"
+      )
       .eq("active", true)
-      .order("assessment_date");
-    if (error) throw error;
-    slots = data ?? [];
+      .gte("assessment_date", today)
+      .order("assessment_date")
+      .order("assessment_time");
+    if (slotError) throw slotError;
+    const typedSlotRows = (slotRows as unknown as SlotRow[]) ?? [];
+
+    // settings is admin-only under RLS (see 0002) — same pattern as the
+    // marketing page: a service-role read here is safe because it runs
+    // server-side only and is never shipped to the browser.
+    const admin = createAdminClient();
+    const { data: unitSetting } = await admin
+      .from("settings")
+      .select("setting_value")
+      .eq("setting_key", "travel_surcharge_unit_cents")
+      .maybeSingle();
+    const surchargeUnitCents = Number(unitSetting?.setting_value ?? 5000);
+
+    slots = typedSlotRows.map((row) => ({
+      id: row.id,
+      date: row.assessment_date,
+      time: row.assessment_time,
+      locationName: row.assessment_locations?.name ?? "Location TBC",
+      priceCents:
+        product.price_cents + (row.assessment_locations?.travel_surcharge_multiplier ?? 0) * surchargeUnitCents,
+      spotsLeft: Math.max(row.capacity - row.booked_count, 0),
+    }));
   } catch {
-    loadError = "Assessment slots haven't been loaded into the database yet.";
+    loadError = "Couldn't load assessment dates right now — please try again shortly.";
   }
 
   return (
     <div className="space-y-4">
       <h1 className="font-heading text-2xl font-bold text-wcmt-navy">Book Your Assessment</h1>
       <p className="text-sm text-slate-600">
-        You&apos;re not required to book an assessment straight away — study first,
-        then book when you&apos;re ready.
+        You&apos;re not required to book an assessment straight away — study first, then book when
+        you&apos;re ready. Pick a highlighted date below to see the location, price and remaining
+        spots.
       </p>
       {loadError && (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
       )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {slots.map((slot) => {
-          const full = slot.booked_count >= slot.capacity;
-          return (
-            <Card key={slot.id} className="flex items-center justify-between">
-              <div>
-                <p className="font-heading font-semibold text-wcmt-navy">
-                  {slot.assessment_date} · {slot.assessment_time}
-                </p>
-                <p className="text-sm text-slate-500">
-                  {full ? "Fully booked" : `${slot.capacity - slot.booked_count} spots left`}
-                </p>
-              </div>
-              {/*
-                Booking submits to a server action / API route that inserts
-                into assessment_bookings — capacity is enforced atomically by
-                the fn_book_assessment_slot() trigger from the build pack,
-                not by this UI, so this button is safe to wire up directly.
-              */}
-              <Button disabled={full} variant={full ? "outline" : "primary"}>
-                {full ? "Full" : "Book"}
-              </Button>
-            </Card>
-          );
-        })}
-        {!loadError && slots.length === 0 && (
-          <p className="text-sm text-slate-500">No assessment slots published yet.</p>
-        )}
-      </div>
+      {!loadError && <BookingCalendar productSlug="assessment" slots={slots} />}
     </div>
   );
 }
