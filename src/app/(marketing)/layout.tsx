@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/ui/Button";
 import { ComplianceFooter } from "@/components/ComplianceFooter";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Logo } from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MarketingLayout({
@@ -21,8 +22,9 @@ export default async function MarketingLayout({
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-heading text-lg font-bold text-wcmt-navy">
-            West Coast Marine Training
+          <Link href="/" className="flex items-center gap-2 font-heading text-lg font-bold text-wcmt-navy">
+            <Logo variant="icon" priority className="h-10" />
+            <span>West Coast Marine Training</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium text-wcmt-navy md:flex">
             <Link href="/#how-it-works">How It Works</Link>
@@ -51,9 +53,7 @@ export default async function MarketingLayout({
 
       <footer className="border-t border-slate-200 bg-white px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center">
-          <p className="font-heading font-semibold text-wcmt-navy">
-            West Coast Marine Training
-          </p>
+          <Logo variant="full" className="h-24" />
           <ComplianceFooter />
           <p className="text-xs text-slate-400">
             &copy; {new Date().getFullYear()} West Coast Marine Training. All rights reserved.

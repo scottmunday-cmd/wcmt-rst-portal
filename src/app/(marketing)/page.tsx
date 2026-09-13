@@ -1,6 +1,7 @@
 import { clsx } from "clsx";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Logo } from "@/components/Logo";
 import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { AssessmentLocation, Product } from "@/types/database";
@@ -60,7 +61,10 @@ export default async function HomePage() {
     <>
       <section className="bg-gradient-to-b from-wcmt-navy to-wcmt-ocean px-6 py-20 text-white">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-heading text-4xl font-bold sm:text-5xl">
+          <div className="inline-block rounded-2xl bg-white/95 px-6 py-4 shadow-lg">
+            <Logo variant="full" priority className="h-36 sm:h-44" />
+          </div>
+          <h1 className="mt-6 font-heading text-4xl font-bold sm:text-5xl">
             Learn Online. Boat Safely. Pass With Confidence.
           </h1>
           <p className="mt-4 text-lg text-slate-200">

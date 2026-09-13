@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Logo } from "@/components/Logo";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -83,8 +84,9 @@ export default async function StudentLayout({
     <div className="min-h-screen bg-wcmt-bg">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" className="font-heading font-bold text-wcmt-navy">
-            West Coast Marine Training
+          <Link href="/" className="flex items-center gap-2 font-heading font-bold text-wcmt-navy">
+            <Logo variant="icon" className="h-9" />
+            <span>West Coast Marine Training</span>
           </Link>
           <nav className="flex items-center gap-5 text-sm font-medium text-wcmt-navy">
             {NAV.map((item) => (

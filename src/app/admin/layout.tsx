@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/LogoutButton";
+import { Logo } from "@/components/Logo";
 
 const NAV = [
   { href: "/admin/products", label: "Products" },
@@ -38,7 +39,12 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-wcmt-bg">
       <header className="border-b border-slate-200 bg-wcmt-navy text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" className="font-heading font-bold">WCMT — Admin</Link>
+          <Link href="/" className="flex items-center gap-2 font-heading font-bold">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white p-1">
+              <Logo variant="icon" className="h-6" />
+            </span>
+            <span>WCMT — Admin</span>
+          </Link>
           <nav className="flex items-center gap-5 text-sm">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-wcmt-coastal">
