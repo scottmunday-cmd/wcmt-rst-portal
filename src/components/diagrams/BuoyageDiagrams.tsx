@@ -45,10 +45,12 @@ const RHYTHMS = {
 function LightRhythmBar({
   label,
   color = "#0B2545",
+  bg = "#FFFFFF",
   pattern,
 }: {
   label: string;
   color?: string;
+  bg?: string;
   pattern: LightSeg[];
 }) {
   const total = pattern.reduce((s, p) => s + p.w, 0);
@@ -61,7 +63,7 @@ function LightRhythmBar({
         className="h-3 w-full max-w-[120px]"
         aria-hidden="true"
       >
-        <rect x="0" y="0" width={total} height="12" fill="#FFFFFF" stroke="#cbd5e1" strokeWidth="0.5" />
+        <rect x="0" y="0" width={total} height="12" fill={bg} stroke="#cbd5e1" strokeWidth="0.5" />
         {pattern.map((seg, i) => {
           const rect = seg.on ? <rect key={i} x={x} y="0" width={seg.w} height="12" fill={color} /> : null;
           x += seg.w;
@@ -81,7 +83,7 @@ function MarkCard({
 }: {
   label: string;
   sub: string;
-  lights?: { label: string; color?: string; pattern: LightSeg[] }[];
+  lights?: { label: string; color?: string; bg?: string; pattern: LightSeg[] }[];
   children: React.ReactNode;
 }) {
   return (
@@ -96,7 +98,7 @@ function MarkCard({
           <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
           <div className="flex w-full flex-col gap-1.5">
             {lights.map((l, i) => (
-              <LightRhythmBar key={i} label={l.label} color={l.color} pattern={l.pattern} />
+              <LightRhythmBar key={i} label={l.label} color={l.color} bg={l.bg} pattern={l.pattern} />
             ))}
           </div>
         </div>
@@ -146,7 +148,7 @@ export function IsolatedDangerMarkDiagram() {
       label="Isolated danger mark"
       sub="Black with a red band. Two black spheres on top — pass well clear on any side."
       lights={[
-        { label: "White — Group Flashing (2). Memory jog: two flashes for two spheres", color: "#0B2545", pattern: RHYTHMS.groupFlash2 },
+        { label: "White — Group Flashing (2). Memory jog: two flashes for two spheres", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.groupFlash2 },
       ]}
     >
       <rect x="20" y="35" width="20" height="20" fill="#0B2545" />
@@ -165,9 +167,9 @@ export function SafeWaterMarkDiagram() {
       label="Safe water mark"
       sub="Red and white vertical stripes, single red sphere on top. Safe water all around."
       lights={[
-        { label: "White — Isophase (equal light and dark)", color: "#0B2545", pattern: RHYTHMS.isophase },
-        { label: "White — Occulting (light longer than dark)", color: "#0B2545", pattern: RHYTHMS.occulting },
-        { label: "White — Long Flash every 10s", color: "#0B2545", pattern: RHYTHMS.longFlash10s },
+        { label: "White — Isophase (equal light and dark)", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.isophase },
+        { label: "White — Occulting (light longer than dark)", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.occulting },
+        { label: "White — Long Flash every 10s", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.longFlash10s },
       ]}
     >
       <rect x="18" y="35" width="24" height="20" fill="white" stroke="#cbd5e1" />
@@ -288,7 +290,7 @@ export function CardinalMarksDiagram() {
           <p className="text-[11px] leading-snug text-slate-500">{CARDINAL_COPY[dir]}</p>
           <div className="mt-1 flex w-full flex-col items-center gap-1 border-t border-slate-200 pt-2">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
-            <LightRhythmBar label={CARDINAL_LIGHT[dir].label} color="#0B2545" pattern={CARDINAL_LIGHT[dir].pattern} />
+            <LightRhythmBar label={CARDINAL_LIGHT[dir].label} color="#FFFFFF" bg="#000000" pattern={CARDINAL_LIGHT[dir].pattern} />
           </div>
         </div>
       ))}

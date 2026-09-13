@@ -27,9 +27,11 @@ add_lessons(1, [
 
 You must hold an RST if you're the skipper of a recreational vessel with a motor bigger than 6 hp (4.5 kW). "Skipper" means you're the one responsible for the safe operation of the vessel and the safety of everyone on it — that's a different job to just "driving," which means physically being at the controls.
 
-The minimum age to hold an RST is 14. If you're 14 or 15, you can only skipper during daylight hours and at speeds up to 8 knots. Once you turn 16, those restrictions lift. Some activities — like towing a water skier, or driving a boat when you're the one being supervised because you don't hold an RST yourself — have their own age rules, so if you're planning anything unusual, it's worth checking the requirements for that specific activity.
+The minimum age to hold an RST is 14. If you're 14 or 15, you can only skipper during daylight hours and at speeds up to 8 knots. Once you turn 16, those restrictions lift.
 
-Boats with a motor of 6 hp or less have lighter requirements — you don't need an RST to skipper one, though age limits still apply for towing and similar activities."""),
+A few specific activities carry their own age rules on top of this, and they come up often in the assessment, so it's worth knowing the exact numbers rather than just "there are rules." To tow a water skier — that is, to be the skipper actually driving the ski boat — you must be at least 17. To act as the observer for water skiing (the person watching the skier and relaying signals to the skipper), you must be at least 14. And if you're the supervising skipper on board for someone who doesn't hold an RST themselves — the person legally responsible while they're at the helm — you must be at least 18, and that age applies in any environment, not just at night or in a particular type of water.
+
+Boats with a motor of 6 hp or less have lighter requirements — you don't need an RST to skipper one — but these same age limits for towing, observing and supervising still apply."""),
 
 ("Theory and practical: what the assessment actually covers",
 """Getting your RST means passing two separate assessments: a theory test and a practical, on-water test. You don't have to do a training course first — plenty of people study this workbook on their own and practise with a supervising skipper (a friend, parent or relative who already holds an RST and is over 18).
@@ -48,6 +50,33 @@ If you're under 18, you'll need a letter of consent signed by a parent or guardi
 You'll also need to self-declare your medical fitness. If you have a condition that could affect your ability to safely operate a vessel — things like epilepsy, heart disease, uncontrolled blood pressure, or type 1 diabetes are examples — you'll need a medical practitioner to complete a Declaration of Medical Fitness form.
 
 Assessment fees aren't set by DTMI, so it's worth comparing prices between authorised providers. If you already hold a recognised interstate or overseas skipper's licence, you can operate in WA for up to three months before you need to apply for your RST under the Skills Recognition scheme — and if you hold certain existing marine qualifications, you may be able to skip the assessment altogether through that same scheme."""),
+])
+
+add_questions(1, [
+("What is the minimum age to hold an RST?",
+ "12", "14", "16", "18", "b", "easy"),
+("An RST holder aged 14 or 15 is restricted to skippering:",
+ "During daylight hours and at a speed of less than 8 knots.",
+ "Only on protected waters.",
+ "Only with an adult on board.",
+ "Only vessels under 3 metres.",
+ "a", "normal"),
+("What is the minimum age to be the skipper towing a water skier?",
+ "14", "16", "17", "18", "c", "hard"),
+("What is the minimum age to act as the observer when a vessel is towing a water skier?",
+ "12", "14", "16", "18", "b", "normal"),
+("You're supervising a person who does not hold an RST while they skipper a vessel. What is the minimum age to act as that supervising skipper?",
+ "16, but only during daylight hours.",
+ "17, but only on protected waters.",
+ "18, in any environment.",
+ "21, but only on unprotected waters.",
+ "c", "hard"),
+("A vessel with a motor of 6 hp or less does not require the skipper to hold an RST. Do the age limits for towing, observing and supervising still apply?",
+ "No — those limits only apply to vessels requiring an RST.",
+ "Yes — the same age limits still apply.",
+ "Only the observer age limit applies.",
+ "Only the supervising skipper age limit applies.",
+ "b", "hard"),
 ])
 
 # ---------------------------------------------------------------------------

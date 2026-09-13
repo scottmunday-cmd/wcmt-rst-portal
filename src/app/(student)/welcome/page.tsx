@@ -1,6 +1,29 @@
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
+// Official DTMI paperwork students may need before assessment day (see
+// Module 1, "Getting ready for assessment day"). Hosted as static files
+// under public/forms — these are government forms meant for applicants to
+// download and use, not training content, so there's no copyright concern
+// in linking them here the way there is with the workbook itself.
+const FORMS = [
+  {
+    href: "/forms/letter-of-consent.pdf",
+    title: "Letter of Consent",
+    detail: "Required if you're under 18 — signed by a parent or guardian.",
+  },
+  {
+    href: "/forms/medical-eyesight-form.pdf",
+    title: "Medical & Eyesight Declaration",
+    detail: "For a medical practitioner, nurse or optometrist to complete if you don't have a driver's licence, or if you have a relevant medical condition.",
+  },
+  {
+    href: "/forms/skills-recognition.pdf",
+    title: "Skills Recognition",
+    detail: "If you already hold an interstate/overseas skipper's licence or other marine qualifications.",
+  },
+];
+
 // Shown once between a student finishing checkout and landing on the
 // dashboard (linked from /checkout/success), and always reachable again
 // from the student nav ("How it Works") for anyone who wants a refresher.
@@ -84,6 +107,30 @@ export default function WelcomePage() {
           Go to Dashboard
         </ButtonLink>
       </div>
+
+      <Card>
+        <h2 className="font-heading font-semibold text-wcmt-navy">Forms you might need</h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Covered in Module 1 — download and fill these in ahead of assessment day if they apply to you.
+        </p>
+        <div className="mt-4 space-y-2">
+          {FORMS.map((form) => (
+            <a
+              key={form.href}
+              href={form.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-3 hover:border-wcmt-coastal"
+            >
+              <div>
+                <p className="text-sm font-semibold text-wcmt-navy">{form.title}</p>
+                <p className="mt-0.5 text-xs leading-snug text-slate-500">{form.detail}</p>
+              </div>
+              <span className="shrink-0 text-xs font-semibold text-wcmt-orange">Download ↓</span>
+            </a>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }

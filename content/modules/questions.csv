@@ -1,4 +1,10 @@
 module_sort_order,question_text,answer_a,answer_b,answer_c,answer_d,correct_answer,difficulty
+1,What is the minimum age to hold an RST?,12,14,16,18,b,easy
+1,An RST holder aged 14 or 15 is restricted to skippering:,During daylight hours and at a speed of less than 8 knots.,Only on protected waters.,Only with an adult on board.,Only vessels under 3 metres.,a,normal
+1,What is the minimum age to be the skipper towing a water skier?,14,16,17,18,c,hard
+1,What is the minimum age to act as the observer when a vessel is towing a water skier?,12,14,16,18,b,normal
+1,You're supervising a person who does not hold an RST while they skipper a vessel. What is the minimum age to act as that supervising skipper?,"16, but only during daylight hours.","17, but only on protected waters.","18, in any environment.","21, but only on unprotected waters.",c,hard
+1,"A vessel with a motor of 6 hp or less does not require the skipper to hold an RST. Do the age limits for towing, observing and supervising still apply?",No — those limits only apply to vessels requiring an RST.,Yes — the same age limits still apply.,Only the observer age limit applies.,Only the supervising skipper age limit applies.,b,hard
 2,"When operating a motor boat near a person in the water, the maximum speed you must not exceed within 50 metres is:",4 knots,6 knots,8 knots,10 knots,c,normal
 2,"Within 15 metres of a vessel that is underway, what is the maximum speed limit?",4 knots,7 knots,8 knots,10 knots,c,normal
 2,What is the maximum speed limit within a mooring area or boat haven?,4 knots,7 knots,8 knots,10 knots,c,normal
