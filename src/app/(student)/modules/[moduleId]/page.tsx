@@ -21,6 +21,8 @@ import {
   DistressSignalRow,
   RadioUrgencyDiagram,
 } from "@/components/diagrams/SafetyEquipmentDiagrams";
+import { SafetyRequirementsTable } from "@/components/diagrams/SafetyRequirementsTable";
+import { LifejacketPhotoRow, FlaresPhotoRow, FireExtinguisherPhoto } from "@/components/diagrams/EquipmentPhotos";
 import { FuelPlanPieChart, StabilityDiagram } from "@/components/diagrams/SafeOperationsDiagrams";
 import { CapsizeResponseDiagram, HelpHuddleDiagram } from "@/components/diagrams/EmergencyDiagrams";
 import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagram";
@@ -99,10 +101,22 @@ function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
   }
   // Module 7 — Safety Equipment
   if (moduleSortOrder === 7 && lessonSortOrder === 1) {
-    return <LifejacketLevelsDiagram />;
+    return (
+      <div className="space-y-3">
+        <SafetyRequirementsTable />
+        <LifejacketLevelsDiagram />
+        <LifejacketPhotoRow />
+        <FireExtinguisherPhoto />
+      </div>
+    );
   }
   if (moduleSortOrder === 7 && lessonSortOrder === 2) {
-    return <DistressSignalRow />;
+    return (
+      <div className="space-y-3">
+        <DistressSignalRow />
+        <FlaresPhotoRow />
+      </div>
+    );
   }
   if (moduleSortOrder === 7 && lessonSortOrder === 3) {
     return <RadioUrgencyDiagram />;

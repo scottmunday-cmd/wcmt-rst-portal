@@ -2,14 +2,86 @@
 // the IALA buoyage marks covered in the IALA Buoyage module. Kept as simple,
 // flat vector shapes rather than photographs, so they render crisply at any
 // size with no image assets to host.
+//
+// Light-rhythm bars: students often mix up which flash pattern goes with
+// which mark, so each card also shows a small "on/off" timing bar for that
+// mark's light characteristic — own artwork, own colour convention (a solid
+// block = the light is on), not copied from any chart or workbook diagram.
+
+type LightSeg = { on: boolean; w: number };
+
+// n short flashes evenly spaced with a short gap after each (used for a
+// continuous quick/very-quick rhythm, e.g. the North cardinal's light).
+function quick(n: number): LightSeg[] {
+  const segs: LightSeg[] = [];
+  for (let i = 0; i < n; i++) {
+    segs.push({ on: true, w: 2 }, { on: false, w: 2 });
+  }
+  return segs;
+}
+
+// A group of n short flashes, then a long dark period before the group
+// repeats — e.g. Group Flashing (2) on an isolated danger mark.
+function group(n: number, dark = 10, gap = 2): LightSeg[] {
+  const segs: LightSeg[] = [];
+  for (let i = 0; i < n; i++) {
+    segs.push({ on: true, w: 2 }, { on: false, w: i < n - 1 ? gap : dark });
+  }
+  return segs;
+}
+
+const RHYTHMS = {
+  flashing: [{ on: true, w: 2 }, { on: false, w: 10 }] as LightSeg[],
+  quickContinuous: quick(7),
+  groupFlash2: group(2),
+  groupFlash3: group(3),
+  groupFlash6PlusLong: [...group(6, 3), { on: true, w: 6 }, { on: false, w: 10 }] as LightSeg[],
+  groupFlash9: group(9),
+  isophase: [{ on: true, w: 7 }, { on: false, w: 7 }] as LightSeg[],
+  occulting: [{ on: true, w: 10 }, { on: false, w: 3 }] as LightSeg[],
+  longFlash10s: [{ on: true, w: 4 }, { on: false, w: 20 }] as LightSeg[],
+};
+
+function LightRhythmBar({
+  label,
+  color = "#0B2545",
+  pattern,
+}: {
+  label: string;
+  color?: string;
+  pattern: LightSeg[];
+}) {
+  const total = pattern.reduce((s, p) => s + p.w, 0);
+  let x = 0;
+  return (
+    <div className="flex w-full flex-col items-center gap-0.5">
+      <svg
+        viewBox={`0 0 ${total} 12`}
+        preserveAspectRatio="none"
+        className="h-3 w-full max-w-[120px]"
+        aria-hidden="true"
+      >
+        <rect x="0" y="0" width={total} height="12" fill="#FFFFFF" stroke="#cbd5e1" strokeWidth="0.5" />
+        {pattern.map((seg, i) => {
+          const rect = seg.on ? <rect key={i} x={x} y="0" width={seg.w} height="12" fill={color} /> : null;
+          x += seg.w;
+          return rect;
+        })}
+      </svg>
+      <p className="text-[9px] font-medium leading-tight text-slate-500">{label}</p>
+    </div>
+  );
+}
 
 function MarkCard({
   label,
   sub,
+  lights,
   children,
 }: {
   label: string;
   sub: string;
+  lights?: { label: string; color?: string; pattern: LightSeg[] }[];
   children: React.ReactNode;
 }) {
   return (
@@ -19,6 +91,16 @@ function MarkCard({
       </svg>
       <p className="text-xs font-semibold text-wcmt-navy">{label}</p>
       <p className="text-[11px] leading-snug text-slate-500">{sub}</p>
+      {lights && lights.length > 0 && (
+        <div className="mt-1 flex w-full flex-col items-center gap-1.5 border-t border-slate-200 pt-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
+          <div className="flex w-full flex-col gap-1.5">
+            {lights.map((l, i) => (
+              <LightRhythmBar key={i} label={l.label} color={l.color} pattern={l.pattern} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -31,13 +113,25 @@ const POLE = <rect x="27" y="55" width="6" height="35" fill="#334155" />;
 export function LateralMarksDiagram() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-      <MarkCard label="Port mark" sub="Red, can-shaped. Keep to port when entering harbour or heading upstream.">
+      <MarkCard
+        label="Port mark"
+        sub="Red, can-shaped. Keep to port when entering harbour or heading upstream."
+        lights={[
+          { label: "Red — any rhythm except Gp Fl (2+1). Example: Flashing", color: "#E11D48", pattern: RHYTHMS.flashing },
+        ]}
+      >
         <rect x="15" y="35" width="30" height="20" rx="2" fill="#E11D48" />
         <rect x="15" y="30" width="30" height="6" fill="#E11D48" />
         {POLE}
         {WATER}
       </MarkCard>
-      <MarkCard label="Starboard mark" sub="Green, cone-shaped. Keep to starboard when entering harbour or heading upstream.">
+      <MarkCard
+        label="Starboard mark"
+        sub="Green, cone-shaped. Keep to starboard when entering harbour or heading upstream."
+        lights={[
+          { label: "Green — any rhythm except Gp Fl (2+1). Example: Flashing", color: "#2BB673", pattern: RHYTHMS.flashing },
+        ]}
+      >
         <polygon points="30,20 45,55 15,55" fill="#2BB673" />
         {POLE}
         {WATER}
@@ -48,7 +142,13 @@ export function LateralMarksDiagram() {
 
 export function IsolatedDangerMarkDiagram() {
   return (
-    <MarkCard label="Isolated danger mark" sub="Black with a red band. Two black spheres on top — pass well clear on any side.">
+    <MarkCard
+      label="Isolated danger mark"
+      sub="Black with a red band. Two black spheres on top — pass well clear on any side."
+      lights={[
+        { label: "White — Group Flashing (2). Memory jog: two flashes for two spheres", color: "#0B2545", pattern: RHYTHMS.groupFlash2 },
+      ]}
+    >
       <rect x="20" y="35" width="20" height="20" fill="#0B2545" />
       <rect x="20" y="42" width="20" height="6" fill="#E11D48" />
       <circle cx="30" cy="28" r="6" fill="#0B2545" />
@@ -61,7 +161,15 @@ export function IsolatedDangerMarkDiagram() {
 
 export function SafeWaterMarkDiagram() {
   return (
-    <MarkCard label="Safe water mark" sub="Red and white vertical stripes, single red sphere on top. Safe water all around.">
+    <MarkCard
+      label="Safe water mark"
+      sub="Red and white vertical stripes, single red sphere on top. Safe water all around."
+      lights={[
+        { label: "White — Isophase (equal light and dark)", color: "#0B2545", pattern: RHYTHMS.isophase },
+        { label: "White — Occulting (light longer than dark)", color: "#0B2545", pattern: RHYTHMS.occulting },
+        { label: "White — Long Flash every 10s", color: "#0B2545", pattern: RHYTHMS.longFlash10s },
+      ]}
+    >
       <rect x="18" y="35" width="24" height="20" fill="white" stroke="#cbd5e1" />
       <rect x="18" y="35" width="6" height="20" fill="#E11D48" />
       <rect x="30" y="35" width="6" height="20" fill="#E11D48" />
@@ -74,7 +182,13 @@ export function SafeWaterMarkDiagram() {
 
 export function SpecialMarkDiagram() {
   return (
-    <MarkCard label="Special mark" sub="Yellow, often with a yellow 'X' on top. Marks a feature, not a hazard to route around.">
+    <MarkCard
+      label="Special mark"
+      sub="Yellow, often with a yellow 'X' on top. Marks a feature, not a hazard to route around."
+      lights={[
+        { label: "Yellow — any rhythm not used above. Example: Flashing", color: "#F5C518", pattern: RHYTHMS.flashing },
+      ]}
+    >
       <rect x="18" y="35" width="24" height="20" fill="#F5C518" />
       <g stroke="#F5C518" strokeWidth="4">
         <line x1="22" y1="16" x2="38" y2="30" />
@@ -150,6 +264,17 @@ const CARDINAL_COPY: Record<CardinalDir, string> = {
   W: "Cones point towards each other, yellow-black-yellow. Pass to the west.",
 };
 
+// Mnemonic students already respond well to: the number of flashes matches
+// where the direction sits on a clock face (E = 3 o'clock, S = 6 o'clock,
+// W = 9 o'clock). South also tacks on one long flash so it's never mistaken
+// for a mis-counted group.
+const CARDINAL_LIGHT: Record<CardinalDir, { label: string; pattern: LightSeg[] }> = {
+  N: { label: "White — continuous Quick (or Very Quick) Flashing", pattern: RHYTHMS.quickContinuous },
+  E: { label: "White — Quick Flashing (3), like 3 o'clock", pattern: RHYTHMS.groupFlash3 },
+  S: { label: "White — Quick Flashing (6) + one long flash, like 6 o'clock", pattern: RHYTHMS.groupFlash6PlusLong },
+  W: { label: "White — Quick Flashing (9), like 9 o'clock", pattern: RHYTHMS.groupFlash9 },
+};
+
 export function CardinalMarksDiagram() {
   const dirs: CardinalDir[] = ["N", "E", "S", "W"];
   return (
@@ -161,6 +286,10 @@ export function CardinalMarksDiagram() {
             {{ N: "North", E: "East", S: "South", W: "West" }[dir]} cardinal
           </p>
           <p className="text-[11px] leading-snug text-slate-500">{CARDINAL_COPY[dir]}</p>
+          <div className="mt-1 flex w-full flex-col items-center gap-1 border-t border-slate-200 pt-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
+            <LightRhythmBar label={CARDINAL_LIGHT[dir].label} color="#0B2545" pattern={CARDINAL_LIGHT[dir].pattern} />
+          </div>
         </div>
       ))}
     </div>

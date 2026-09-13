@@ -1,144 +1,113 @@
-// Original diagrams for the Collision Avoidance module — not traced from any
-// workbook, exam paper or chart.
+// Original diagrams for the Collision Avoidance module — redrawn from
+// scratch (own hull shape, own colours, own layout), not traced from the
+// workbook. The boat icon's bow is split red/green to show each vessel's
+// own port/starboard sidelights, and vessels are labelled A/B the way a
+// skipper would talk through a give-way situation with a student.
 
-// Small triangular vessel icon, positioned and rotated by its parent <g>.
-// Apex points "up" (bow forward) at rotate(0).
-function Boat({ fill = "#0B2545" }: { fill?: string }) {
-  return <polygon points="0,-11 8,10 0,5 -8,10" fill={fill} />;
-}
-
-// Shared arrowhead marker, one per colour so each path's arrow matches its
-// stroke. `orient="auto"` means the arrow always points the true direction
-// of travel, independent of how the boat icon itself is rotated.
-function ArrowDefs({ id, color }: { id: string; color: string }) {
+// Hull points "up" (bow forward) at rotate(0). The bow wedge is split
+// red (port, its own left) / green (starboard, its own right) — this stays
+// correct under rotation, exactly like a vessel's actual sidelights do.
+function Boat() {
   return (
-    <defs>
-      <marker
-        id={id}
-        markerWidth="8"
-        markerHeight="8"
-        refX="6"
-        refY="4"
-        orient="auto-start-reverse"
-      >
-        <path d="M0,0 L8,4 L0,8 Z" fill={color} />
-      </marker>
-    </defs>
+    <g stroke="#0B2545" strokeWidth="1" strokeLinejoin="round">
+      <polygon points="0,-15 -7,-3 7,-3" fill="none" />
+      <polygon points="0,-15 -7,-3 0,-3" fill="#E11D48" />
+      <polygon points="0,-15 7,-3 0,-3" fill="#2BB673" />
+      <polygon points="-7,-3 7,-3 6,10 -6,10" fill="#FFFFFF" />
+    </g>
   );
 }
 
-const NAVY = "#0B2545";
-const COASTAL = "#4EA5D9";
+function Label({ x, y, text }: { x: number; y: number; text: string }) {
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <rect x={-9} y={-9} width={18} height={16} rx={2} fill="#FFFFFF" stroke="#0B2545" strokeWidth="1" />
+      <text x={0} y={3} textAnchor="middle" fontSize="11" fontWeight="700" fill="#0B2545">
+        {text}
+      </text>
+    </g>
+  );
+}
+
+function ArrowDefs({ id }: { id: string }) {
+  return (
+    <marker id={id} markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="#0B2545" />
+    </marker>
+  );
+}
 
 export function GiveWayDiagram() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {/* Head-on */}
       <div className="flex flex-col items-center gap-2 rounded-lg bg-wcmt-bg p-3 text-center">
-        <svg viewBox="0 0 130 130" className="h-32 w-28" aria-hidden="true">
-          <ArrowDefs id="gw-ho-navy" color={NAVY} />
-          <ArrowDefs id="gw-ho-coastal" color={COASTAL} />
-          <line x1="65" y1="122" x2="65" y2="8" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="3 4" />
-          {/* Navy vessel: heading up, alters to starboard (image-right) */}
-          <path
-            d="M65,122 Q95,95 95,20"
-            fill="none"
-            stroke={NAVY}
-            strokeWidth="3"
-            markerEnd="url(#gw-ho-navy)"
-          />
-          <g transform="translate(65,122)">
-            <Boat fill={NAVY} />
+        <svg viewBox="0 0 140 130" className="h-32 w-32" aria-hidden="true">
+          <defs>
+            <ArrowDefs id="gw-ho" />
+          </defs>
+          <line x1="70" y1="122" x2="70" y2="8" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="3 4" />
+          <path d="M70,115 Q95,80 95,20" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-ho)" />
+          <path d="M70,15 Q45,50 45,110" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-ho)" />
+          <g transform="translate(70,115)">
+            <Boat />
           </g>
-          {/* Coastal vessel: heading down, alters to starboard (image-left) */}
-          <path
-            d="M65,8 Q35,35 35,110"
-            fill="none"
-            stroke={COASTAL}
-            strokeWidth="3"
-            markerEnd="url(#gw-ho-coastal)"
-          />
-          <g transform="translate(65,8) rotate(180)">
-            <Boat fill={COASTAL} />
+          <g transform="translate(70,15) rotate(180)">
+            <Boat />
           </g>
+          <Label x={70} y={126} text="A" />
+          <Label x={70} y={5} text="B" />
         </svg>
         <p className="text-xs font-semibold text-wcmt-navy">Head-on</p>
-        <p className="text-[11px] leading-snug text-slate-500">
-          Meeting head-on, both vessels turn to starboard (the right) — like sticking to your own
-          side of the road — and pass port-to-port.
+        <p className="text-[11px] italic leading-snug text-slate-600">
+          Both vessels alter course to starboard.
         </p>
       </div>
 
       {/* Crossing */}
       <div className="flex flex-col items-center gap-2 rounded-lg bg-wcmt-bg p-3 text-center">
         <svg viewBox="0 0 150 130" className="h-32 w-32" aria-hidden="true">
-          <ArrowDefs id="gw-cr-navy" color={NAVY} />
-          <ArrowDefs id="gw-cr-coastal" color={COASTAL} />
-          {/* Faint original heading the coastal vessel gives up on, to avoid crossing ahead */}
+          <defs>
+            <ArrowDefs id="gw-cr" />
+          </defs>
           <line x1="18" y1="105" x2="112" y2="18" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="3 4" />
-          {/* Navy = stand-on vessel: holds course and speed, crosses ahead uninterrupted */}
-          <path
-            d="M140,18 L20,95"
-            fill="none"
-            stroke={NAVY}
-            strokeWidth="3"
-            markerEnd="url(#gw-cr-navy)"
-          />
+          <path d="M140,18 L20,95" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-cr)" />
+          <path d="M18,105 Q70,122 128,72" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-cr)" />
           <g transform="translate(140,18) rotate(-125)">
-            <Boat fill={NAVY} />
+            <Boat />
           </g>
-          {/* Coastal = give-way vessel: turns to starboard, slows, passes astern (behind) */}
-          <path
-            d="M18,105 Q70,122 128,72"
-            fill="none"
-            stroke={COASTAL}
-            strokeWidth="3"
-            markerEnd="url(#gw-cr-coastal)"
-          />
           <g transform="translate(18,105) rotate(48)">
-            <Boat fill={COASTAL} />
+            <Boat />
           </g>
+          <Label x={148} y={6} text="B" />
+          <Label x={8} y={117} text="A" />
         </svg>
         <p className="text-xs font-semibold text-wcmt-navy">Crossing</p>
-        <p className="text-[11px] leading-snug text-slate-500">
-          The vessel on your starboard (light blue here) has right of way. You (light blue)
-          turn to starboard and ease off, letting the darker vessel come through ahead of you —
-          never cut across its bow.
+        <p className="text-[11px] italic leading-snug text-slate-600">
+          A gives way to B — turns to starboard, passes astern.
         </p>
       </div>
 
       {/* Overtaking */}
       <div className="flex flex-col items-center gap-2 rounded-lg bg-wcmt-bg p-3 text-center">
-        <svg viewBox="0 0 130 130" className="h-32 w-28" aria-hidden="true">
-          <ArrowDefs id="gw-ot-coastal" color={COASTAL} />
-          <ArrowDefs id="gw-ot-navy" color={NAVY} />
-          {/* Coastal = vessel ahead: holds course and speed */}
-          <path
-            d="M68,118 L68,15"
-            fill="none"
-            stroke={COASTAL}
-            strokeWidth="3"
-            markerEnd="url(#gw-ot-coastal)"
-          />
+        <svg viewBox="0 0 130 130" className="h-32 w-32" aria-hidden="true">
+          <defs>
+            <ArrowDefs id="gw-ot" />
+          </defs>
+          <path d="M68,118 L68,15" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-ot)" />
+          <path d="M50,125 Q6,68 42,18" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-ot)" />
           <g transform="translate(68,118)">
-            <Boat fill={COASTAL} />
+            <Boat />
           </g>
-          {/* Navy = overtaking vessel: swings wide, keeps well clear, passes */}
-          <path
-            d="M50,125 Q6,68 42,18"
-            fill="none"
-            stroke={NAVY}
-            strokeWidth="3"
-            markerEnd="url(#gw-ot-navy)"
-          />
           <g transform="translate(50,125) rotate(-25)">
-            <Boat fill={NAVY} />
+            <Boat />
           </g>
+          <Label x={80} y={110} text="B" />
+          <Label x={38} y={125} text="A" />
         </svg>
         <p className="text-xs font-semibold text-wcmt-navy">Overtaking</p>
-        <p className="text-[11px] leading-snug text-slate-500">
-          The overtaking vessel (dark) keeps well clear on either side, whatever the situation —
-          the vessel ahead just holds its course and speed.
+        <p className="text-[11px] italic leading-snug text-slate-600">
+          A keeps clear of B, on either side, whatever the situation.
         </p>
       </div>
     </div>
