@@ -70,16 +70,16 @@ export function GiveWayDiagram() {
           <defs>
             <ArrowDefs id="gw-cr" />
           </defs>
-          <line x1="18" y1="105" x2="112" y2="18" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="3 4" />
-          <path d="M140,18 L20,95" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-cr)" />
+          <line x1="18" y1="105" x2="105" y2="25" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="3 4" />
+          <path d="M135,25 L25,25" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-cr)" />
           <path d="M18,105 Q70,122 128,72" fill="none" stroke="#0B2545" strokeWidth="2" markerEnd="url(#gw-cr)" />
-          <g transform="translate(140,18) rotate(-125)">
+          <g transform="translate(135,25) rotate(270)">
             <Boat />
           </g>
           <g transform="translate(18,105) rotate(48)">
             <Boat />
           </g>
-          <Label x={148} y={6} text="B" />
+          <Label x={144} y={13} text="B" />
           <Label x={8} y={117} text="A" />
         </svg>
         <p className="text-xs font-semibold text-wcmt-navy">Crossing</p>
