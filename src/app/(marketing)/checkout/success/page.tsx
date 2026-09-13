@@ -48,11 +48,11 @@ export default async function CheckoutSuccessPage({
               You&apos;re all set{order.product_name ? ` — ${order.product_name}` : ""}!
             </h1>
             <p className="mt-3 text-sm text-slate-600">
-              Payment received. Your account now has access — head to your
-              dashboard to get started.
+              Payment received. Your account now has access — let&apos;s get
+              you set up to study.
             </p>
-            <ButtonLink href="/dashboard" variant="primary" className="mt-6">
-              Go to Dashboard
+            <ButtonLink href="/welcome" variant="primary" className="mt-6">
+              Get Started
             </ButtonLink>
           </>
         )}
@@ -85,8 +85,8 @@ export default async function CheckoutSuccessPage({
               through. Check your dashboard, or get in touch if anything
               looks off.
             </p>
-            <ButtonLink href="/dashboard" variant="primary" className="mt-6">
-              Go to Dashboard
+            <ButtonLink href="/welcome" variant="primary" className="mt-6">
+              Get Started
             </ButtonLink>
           </>
         )}
