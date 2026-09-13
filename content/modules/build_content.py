@@ -124,6 +124,45 @@ add_questions(2, [
  "c", "normal"),
 ])
 
+add_questions(2, [
+("What is the maximum blood alcohol limit that applies to the skipper of a recreational vessel in WA?",
+ "0.00", "0.02", "0.05", "0.08", "c", "normal"),
+("A marine incident involving serious injury, death, or damage that leaves a vessel unseaworthy must be reported within:",
+ "24 hours.", "48 hours.", "72 hours.", "7 days.", "c", "normal"),
+("If you come across another vessel or person in distress on the water, as skipper you are expected to:",
+ "Offer assistance, within the limits of what you can safely do.",
+ "Continue on your way unless directly asked for help.",
+ "Only assist if you are the closest vessel and fully crewed.",
+ "Radio the coastguard and take no further action yourself.",
+ "a", "normal"),
+("A small tender fitted with a motor of 5 hp or less, and no longer than 3.1 metres, is generally:",
+ "Required to be registered the same as any other vessel.",
+ "Exempt from registration.",
+ "Only exempt if used exclusively at night.",
+ "Required to display a special exemption sticker.",
+ "b", "normal"),
+("Which code flag is used to signal that a diver is below?",
+ "Code flag A.", "Code flag B.", "Code flag O.", "Code flag Z.", "a", "normal"),
+("Water skiing behind a recreational vessel requires, at minimum:",
+ "A skipper only.",
+ "A skipper and a skier.",
+ "A skipper, an observer, and a skier who all meet the age and role requirements.",
+ "Any two people on board, regardless of role.",
+ "c", "normal"),
+("While a vessel is underway, passengers should:",
+ "Stay within the hull of the vessel — not perched on the bow or gunwales.",
+ "Sit on the bow for a better view, if the water is calm.",
+ "Stand on the gunwales when taking photos.",
+ "Sit wherever they like, provided they hold on.",
+ "a", "normal"),
+("If you change your name or residential address after obtaining your RST, you must:",
+ "Do nothing — RST details never need updating.",
+ "Update your details with DTMI.",
+ "Re-sit the theory assessment.",
+ "Notify your local marine rescue group only.",
+ "b", "normal"),
+])
+
 # ---------------------------------------------------------------------------
 # MODULE 3 — Collision Avoidance
 # ---------------------------------------------------------------------------
@@ -142,7 +181,7 @@ In restricted visibility (fog, heavy rain), keep an especially good lookout, swi
 
 Overtaking overrides every other give-way rule: the overtaking vessel must keep clear of the vessel being overtaken, on either side, but with plenty of room. If you're being overtaken, hold your course and speed until the other vessel is past and clear.
 
-For two power-driven vessels crossing paths: if the other vessel is on your right (starboard), it has right of way and you must keep clear — turn right, slow down, or both. If it's on your left (port), you technically have right of way, but if it looks like the other skipper hasn't seen you, you need to act anyway: alter course to the right, slow down, or both. Meeting another vessel head-on, both of you alter course to the right.
+For two power-driven vessels crossing paths: if the other vessel is on your right (starboard), it has right of way and you must keep clear — turn right, slow down, or both. If it's on your left (port), you technically have right of way, but if it looks like the other skipper hasn't seen you, you need to act anyway: alter course to the right, slow down, or both. Meeting another vessel head-on, both of you alter course to the right, so you pass port side to port side. There's an old rhyme sailors have used for generations to remember this: "green to green, or red to red, perfect safety, go ahead" — if the sidelight colour you can see matches the one you're showing them, you're passing safely.
 
 Sound signals are used to indicate what you're about to do: one short blast means you're altering course to starboard, two short blasts means altering course to port, three short blasts means your engines are going astern, and five short blasts is the "I don't understand your intentions, or you're not following the rules" signal — in other words, get out of the way.
 
@@ -185,6 +224,45 @@ add_questions(3, [
  "The vessel with the other boat on its port (left) side.",
  "Neither — they should both hold course until one gives way.",
  "Whichever vessel is travelling faster.",
+ "a", "normal"),
+])
+
+add_questions(3, [
+("In restricted visibility such as fog or heavy rain, you should:",
+ "Speed up to get through the area faster.",
+ "Switch on navigation lights, slow to a safe speed, and keep an especially good lookout.",
+ "Switch off your motor and drift until visibility improves.",
+ "Continue as normal — restricted visibility does not change the rules.",
+ "b", "normal"),
+("A vessel that is hampered by the work it is doing, such as dredging or cable laying, generally:",
+ "Must always give way to power-driven vessels.",
+ "Has right of way over ordinary traffic.",
+ "Has no special status under the rules.",
+ "Must display no special signal.",
+ "b", "hard"),
+("As a general rule between a power-driven vessel and a sailing vessel, which must give way?",
+ "The sailing vessel.",
+ "The power-driven vessel.",
+ "Whichever is travelling faster.",
+ "Whichever is larger.",
+ "b", "normal"),
+("What does five short blasts on a vessel's horn mean?",
+ "I am altering course to starboard.",
+ "I am altering course to port.",
+ "I am operating astern propulsion.",
+ "I do not understand your intentions, or you are not taking sufficient action.",
+ "d", "normal"),
+("You are on a crossing course with another power-driven vessel on your port (left) side. You believe they may not have seen you. You should:",
+ "Hold your course and speed, since you have right of way.",
+ "Alter course to the right, slow down, or both, even though you technically have right of way.",
+ "Alter course to the left to move away faster.",
+ "Sound one short blast and take no further action.",
+ "b", "normal"),
+("Two power-driven vessels are meeting head-on. What action should both take?",
+ "Both alter course to the right, passing port-to-port.",
+ "Both alter course to the left, passing starboard-to-starboard.",
+ "One should stop; the other proceeds.",
+ "Both maintain course and speed.",
  "a", "normal"),
 ])
 
@@ -272,6 +350,27 @@ add_questions(4, [
  "b", "normal"),
 ])
 
+add_questions(4, [
+("On a vessel under 12 metres, the masthead and stern lights may be combined into:",
+ "A single all-round white light.",
+ "A single red light.",
+ "Two separate green lights.",
+ "They can never be combined, regardless of vessel size.",
+ "a", "normal"),
+("A sailing vessel that is motoring, rather than sailing, must show:",
+ "No lights at all, since it is a sailing vessel.",
+ "Only its sidelights.",
+ "The same lights as a motor boat of its size.",
+ "A single yellow all-round light.",
+ "c", "normal"),
+("Why should you use red light rather than white light at the helm or chart table at night?",
+ "Red light uses less battery power.",
+ "White light bleaches out night vision, which can take up to an hour to fully recover.",
+ "Red light is required by law after sunset.",
+ "There is no real difference between red and white light at night.",
+ "b", "normal"),
+])
+
 # ---------------------------------------------------------------------------
 # MODULE 5 — IALA Buoyage
 # ---------------------------------------------------------------------------
@@ -279,14 +378,16 @@ add_lessons(5, [
 ("Lateral marks: reading channels",
 """The IALA buoyage system uses distinctive shapes, colours and light rhythms so you can tell at a glance what a navigation mark is warning you about. Lateral marks show you the port and starboard sides of a channel: red, can-shaped marks are port marks, and green, triangular marks are starboard marks.
 
-The rule for using them depends on your direction of travel. Entering harbours or heading upstream, keep port marks on your port (left) side and starboard marks on your starboard (right) side. Leaving harbours or heading downstream, it's reversed. A handy memory aid is "there's some red, port, left in the bottle" for the upstream direction. If lit, port marks show red lights and starboard marks show green lights — the only marks that use those colours.
+The rule for using them depends on your direction of travel. Entering harbours or heading upstream, keep port marks on your port (left) side and starboard marks on your starboard (right) side — a simple way to say this is "green to green, heading in": keep the green marks on your green (starboard) side as you come in from the sea. Leaving harbours or heading downstream, it's reversed. If lit, port marks show red lights and starboard marks show green lights — the only marks that use those colours.
 
-Isolated danger marks indicate a specific hazard with safe water all around it — pass well clear on any side. If lit, they show a white light flashing in groups of two, matching the two black spheres on top of the mark. Safe water marks indicate exactly that — safe water all around, often used to mark the seaward end of a channel — and if lit, show a white light, often using the Morse "A" rhythm."""),
+A couple of old memory tricks are worth knowing, because they stick. "There's no red port left in the glass" plays on the drink: port wine is red, and red is port, which is left. And if you're ever unsure which pair goes together, the word with more letters in it goes with the word with more letters: "green" and "right"/"starboard" are the longer words, "red", "left" and "port" are the shorter ones.
+
+Isolated danger marks indicate a specific hazard with safe water all around it — pass well clear on any side. Their black body with a red band is a handy colour combination to remember precisely because it looks a bit like a redback spider — black with a red marking, and definitely something to stay well clear of. If lit, they show a white light flashing in groups of two, matching the two black spheres on top of the mark. Safe water marks indicate exactly that — safe water all around, often used to mark the seaward end of a channel — and if lit, show a white light, often using the Morse "A" rhythm."""),
 
 ("Cardinal marks: pass on the named side",
 """Cardinal marks tell you which compass direction the safe water lies in, relative to a hazard — so you pass to the north of a North cardinal mark, the east of an East cardinal mark, and so on. Having a compass on board makes these genuinely useful rather than just decorative.
 
-The black and yellow colour bands and the black cone-shaped topmarks follow a logical pattern: North has both cones pointing up, black at the top; South has both pointing down, black at the bottom; East has the cones pointing away from each other (up and down), black at the top and bottom; West has the cones pointing towards each other, black in the middle.
+The black and yellow colour bands and the black cone-shaped topmarks follow a logical pattern: North has both cones pointing up, black at the top; South has both pointing down, black at the bottom; East has the cones pointing away from each other (up and down), black at the top and bottom; West has the cones pointing towards each other, black in the middle — picture an hourglass shape, pinched in the centre, and you've got West.
 
 Lit cardinal marks roughly follow a clock face: continuous flashing for North (12 o'clock), three flashes for East (3 o'clock), six flashes plus one long flash for South (6 o'clock), and nine flashes for West (9 o'clock). The extra long flash on South and the continuous flash on North exist specifically so you don't lose count in the dark."""),
 
@@ -362,6 +463,23 @@ add_questions(5, [
  "d", "normal"),
 ])
 
+add_questions(5, [
+("Entering a harbour, on which side should you keep a red, can-shaped port lateral mark?",
+ "On your port (left) side.",
+ "On your starboard (right) side.",
+ "It does not matter which side.",
+ "Directly ahead, in the centre of the channel.",
+ "a", "normal"),
+("A North cardinal mark's black topmark cones both point:",
+ "Up.", "Down.", "Away from each other.", "Towards each other.", "a", "normal"),
+("What does an Isolated Danger Mark indicate?",
+ "Safe water in every direction.",
+ "A specific hazard, with safe water all around it — pass well clear on any side.",
+ "The port side of a channel.",
+ "A traffic separation zone.",
+ "b", "normal"),
+])
+
 # ---------------------------------------------------------------------------
 # MODULE 6 — Maintenance
 # ---------------------------------------------------------------------------
@@ -408,6 +526,43 @@ add_questions(6, [
  "a", "normal"),
 ("If your vessel is fitted with an LP gas system, how often should it be serviced?",
  "Before each trip.", "After each trip.", "Monthly.", "Yearly.", "d", "normal"),
+])
+
+add_questions(6, [
+("If you use your motor hard, how often should the gearbox oil be changed?",
+ "Every month.", "Every three months.", "Every six months.", "Only when it looks discoloured.", "b", "normal"),
+("What is the most common cause of electrical system failures on a vessel?",
+ "Corrosion of terminals and connectors.",
+ "Overcharging the battery.",
+ "Using the wrong colour wiring.",
+ "Running the motor too fast.",
+ "a", "normal"),
+("Before starting your motor, a good habit is to do a 'sniff test' to check for:",
+ "Fuel smell, which could indicate a leak.",
+ "Fresh paint.",
+ "Salt water residue.",
+ "Diesel exhaust from other vessels.",
+ "a", "normal"),
+("After every trip, you should flush your engine with:",
+ "Salt water.", "Fresh water.", "Diesel.", "Nothing — flushing is only needed monthly.", "b", "normal"),
+("As part of a monthly maintenance check, you should:",
+ "Check flares and EVDS are still in date.",
+ "Test any bilge pump.",
+ "Look over safety gear for signs of deterioration.",
+ "All of the above.",
+ "d", "easy"),
+("As part of a yearly maintenance check, you should inspect:",
+ "Anodes for erosion.",
+ "Through-hull fittings, hoses and clamps.",
+ "The gearbox oil, and replace it.",
+ "All of the above.",
+ "d", "normal"),
+("Why should you periodically remove the propeller and check the shaft for wrapped fishing line?",
+ "It has no real effect and is purely cosmetic.",
+ "Wrapped line can destroy the gearbox seal and let water in, eventually wrecking the gearbox.",
+ "It only affects top speed, not the gearbox.",
+ "Fishing line cannot wrap around a propeller shaft.",
+ "b", "hard"),
 ])
 
 # ---------------------------------------------------------------------------
@@ -500,6 +655,39 @@ add_questions(7, [
  "a", "normal"),
 ])
 
+add_questions(7, [
+("What standard must an approved lifejacket meet?",
+ "AS 4758 or ISO 12402.",
+ "AS 1001.",
+ "There is no standard — any flotation device is acceptable.",
+ "ISO 9001.",
+ "a", "normal"),
+("What is the key difference between a Level 100+ lifejacket and a Level 50/50S lifejacket?",
+ "Level 100+ jackets provide head and neck support and float the wearer face-up; Level 50/50S do not.",
+ "Level 50/50S jackets are always more buoyant.",
+ "There is no practical difference between them.",
+ "Level 100+ jackets are only for use on PWCs.",
+ "a", "normal"),
+("Approximately how long does a red hand-held distress flare burn for?",
+ "About 45 seconds.", "About 2 minutes.", "About 10 minutes.", "About 20 hours.", "a", "normal"),
+("An EPIRB is designed to float and operate for a minimum of:",
+ "12 hours.", "24 hours.", "48 hours.", "7 days.", "c", "normal"),
+("A PLB (Personal Locator Beacon) differs from an EPIRB in that it:",
+ "Must be worn by a person on board and operates for a minimum of 24 hours.",
+ "Floats free of the vessel and never needs to be worn.",
+ "Does not need to be registered with AMSA.",
+ "Cannot be used at sea.",
+ "a", "normal"),
+("What is the designated international distress and calling channel on a VHF marine radio?",
+ "Channel 9.", "Channel 16.", "Channel 67.", "Channel 88.", "b", "normal"),
+("What is the recommended anchor line 'scope' (length of line relative to water depth) in calm conditions?",
+ "At least twice the water depth.",
+ "At least five times the water depth.",
+ "Exactly the water depth.",
+ "Scope does not matter in calm conditions.",
+ "b", "normal"),
+])
+
 # ---------------------------------------------------------------------------
 # MODULE 8 — Safe Operations
 # ---------------------------------------------------------------------------
@@ -575,6 +763,41 @@ add_questions(8, [
  "A wind shift.", "An increase in swell.", "Cloud building up.", "All of the above.", "d", "easy"),
 ])
 
+add_questions(8, [
+("How do you work out your vessel's fuel consumption in litres per hour?",
+ "Divide litres used by hours run on a typical trip.",
+ "Multiply litres used by hours run.",
+ "It cannot be estimated — you must ask the manufacturer.",
+ "Divide the tank capacity by the trip distance.",
+ "a", "normal"),
+("Before departing, what crew factors should a skipper consider?",
+ "Whether anyone is prone to seasickness.",
+ "Whether anyone has a medical condition the skipper should know about.",
+ "Whether the trip is appropriate for everyone's age and experience.",
+ "All of the above.",
+ "d", "easy"),
+("What is 'free surface effect'?",
+ "Water sloshing around loose inside the hull, which can seriously undermine stability.",
+ "The natural buoyancy of an empty hull.",
+ "The drag caused by a fouled propeller.",
+ "The effect of wind on an anchored vessel.",
+ "a", "hard"),
+("A vessel with a long, slow roll that is reluctant to return upright is showing signs of:",
+ "Being correctly loaded.",
+ "Instability — weight should be moved lower and load reduced.",
+ "A simple list, which is not a safety concern.",
+ "Normal behaviour in any sea state.",
+ "b", "normal"),
+("What is 'chart datum'?",
+ "The average high tide level.",
+ "Roughly the lowest water level the tide is likely to fall to, from which charted depths are measured.",
+ "The exact depth at every point on a chart, regardless of tide.",
+ "A GPS reference point unrelated to tides.",
+ "b", "hard"),
+("A sudden, brief increase in wind speed, often with a change in direction, that dies away again is called a:",
+ "Gale.", "Squall.", "Gust.", "Cyclone.", "b", "normal"),
+])
+
 # ---------------------------------------------------------------------------
 # MODULE 9 — Emergencies
 # ---------------------------------------------------------------------------
@@ -638,6 +861,51 @@ add_questions(9, [
  "Any qualified person.",
  "The skipper.",
  "d", "easy"),
+])
+
+add_questions(9, [
+("Which of the following is a common contributing factor in vessel capsizes?",
+ "Overloading or poor load distribution.",
+ "Broaching in a following sea.",
+ "Free surface effect from water sloshing in the hull.",
+ "All of the above.",
+ "d", "easy"),
+("Before abandoning a sinking vessel, if time allows, you should:",
+ "Remove excess clothing to swim more easily.",
+ "Try to send a Mayday call and activate your EPIRB.",
+ "Empty the fuel tank overboard.",
+ "Wait until the vessel is fully submerged before acting.",
+ "b", "normal"),
+("If your vessel runs aground, what should you check first?",
+ "Whether your passengers are safe and uninjured.",
+ "The cost of repairs.",
+ "Whether anyone saw it happen.",
+ "The state of the tide only.",
+ "a", "normal"),
+("Which of these is a common cause of fire on a recreational vessel?",
+ "Overheated galley equipment.",
+ "Faulty wiring.",
+ "Poor refuelling technique.",
+ "All of the above.",
+ "d", "easy"),
+("If a fire breaks out on your vessel, an early priority is to:",
+ "Raise the alarm and do a head count.",
+ "Continue on course and monitor the fire from a distance.",
+ "Immediately abandon ship regardless of the fire's size.",
+ "Turn off all radios to avoid distraction.",
+ "a", "normal"),
+("If your motor won't start, a basic troubleshooting check should include:",
+ "The kill switch and fuel supply.",
+ "Battery connections, spark plugs and fuses.",
+ "The choke and carburettor air intake.",
+ "All of the above.",
+ "d", "easy"),
+("What is the key difference between the HELP position and the Huddle position?",
+ "HELP is used alone; Huddle is used by a group clustering together for warmth.",
+ "HELP is only for use in warm water; Huddle is for cold water.",
+ "There is no difference — they are the same technique.",
+ "Huddle is used alone; HELP is used by a group.",
+ "a", "normal"),
 ])
 
 # ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ModuleQuiz } from "@/components/ModuleQuiz";
-import { MockExamQuiz } from "@/components/MockExamQuiz";
+import { PracticeExams } from "@/components/PracticeExams";
 import { LessonAudio } from "@/components/LessonAudio";
 import { NavigationLightArcs } from "@/components/diagrams/NavigationLightArcs";
 import {
@@ -24,12 +24,13 @@ import {
 import { FuelPlanPieChart, StabilityDiagram } from "@/components/diagrams/SafeOperationsDiagrams";
 import { CapsizeResponseDiagram, HelpHuddleDiagram } from "@/components/diagrams/EmergencyDiagrams";
 import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagram";
+import { ModuleHero } from "@/components/diagrams/ModuleHero";
 import type { Lesson, Module } from "@/types/database";
 
 // The Mock Assessment module (content/modules/build_content.py, sort_order
-// 11) has no questions of its own — it draws a full 40-question practice
-// exam from every other module's bank instead, so it gets the dedicated
-// MockExamQuiz component rather than the per-module ModuleQuiz.
+// 11) has no questions of its own — it draws full-length practice exams
+// from every other module's bank instead, so it gets the dedicated
+// PracticeExams component rather than the per-module ModuleQuiz.
 const MOCK_ASSESSMENT_SORT_ORDER = 11;
 
 // Diagrams live in code (not the lessons.content text column) so they can be
@@ -169,6 +170,7 @@ export default async function ModuleDetailPage({
       <h1 className="font-heading text-2xl font-bold text-wcmt-navy">
         {module_?.title ?? `Module ${moduleId}`}
       </h1>
+      {module_ && <ModuleHero moduleSortOrder={module_.sort_order} />}
       {loadError && (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">{loadError}</Card>
       )}
@@ -219,7 +221,7 @@ export default async function ModuleDetailPage({
       {!loadError && module_?.sort_order === MOCK_ASSESSMENT_SORT_ORDER && (
         <div className="space-y-3 pt-4">
           <h2 className="font-heading text-xl font-bold text-wcmt-navy">Mock Assessment</h2>
-          <MockExamQuiz />
+          <PracticeExams />
         </div>
       )}
       {!loadError &&
