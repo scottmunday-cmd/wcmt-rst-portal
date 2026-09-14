@@ -3,8 +3,8 @@ const FAQS = [
   { q: "Do I need boating experience?", a: "No — the course is designed for complete beginners as well as experienced boaters brushing up before their assessment." },
   { q: "How long do I get access?", a: "Portal access is lifetime — including the reference library, after you complete the course." },
   { q: "Can I study before booking?", a: "Yes. Assessment booking is completely separate from enrolling — study at your own pace and book when you're ready." },
-  { q: "What happens in the practical assessment?", a: "An instructor assesses your on-water skills against the RST requirements at one of our locations." },
-  { q: "What happens after I pass?", a: "You receive your certificate with a QR verification code, and keep lifetime access to the reference library." },
+  { q: "What happens in the practical assessment?", a: "Our instructor will train you on the day at one of our RST locations, teaching you thoroughly how to complete all of the skills needed, then you will be assessed against the RST requirements." },
+  { q: "What happens after I pass?", a: "For online studies, you receive your certificate with a QR verification code, and keep lifetime access to the reference library. After passing your actual RST assessment, the instructor will issue you with a temporary RST immediately, then your card will be sent out by DOT after processing." },
 ];
 
 export default function FaqPage() {
