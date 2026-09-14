@@ -29,6 +29,25 @@ import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagr
 import { ModuleHero } from "@/components/diagrams/ModuleHero";
 import type { Lesson, Module } from "@/types/database";
 
+// Lesson content is plain text, but sparingly wraps a phrase in **bold**
+// where it's worth a student's extra attention (a nuance that's an easy trap
+// in the actual assessment — e.g. a duty that looks absolute but isn't).
+// This splits on that light markup and renders it as <strong>; LessonAudio
+// strips the markers before reading a lesson aloud so they're never spoken.
+function renderInline(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} className="font-semibold text-wcmt-navy">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
 // The Mock Assessment module (content/modules/build_content.py, sort_order
 // 11) has no questions of its own — it draws full-length practice exams
 // from every other module's bank instead, so it gets the dedicated
@@ -210,7 +229,7 @@ export default async function ModuleDetailPage({
                   .map((s) => s.trim())
                   .filter(Boolean)
                   .map((paragraph, pIdx) => (
-                    <p key={pIdx}>{paragraph}</p>
+                    <p key={pIdx}>{renderInline(paragraph)}</p>
                   ))}
               </div>
             )}

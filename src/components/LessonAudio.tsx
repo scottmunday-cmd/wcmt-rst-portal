@@ -78,7 +78,11 @@ export function LessonAudio({ text }: { text: string }) {
   function play() {
     if (!supported) return;
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
+    // Lesson content can carry light **bold** markers for on-page emphasis
+    // (see the module page's renderInline) — strip them here so the reader
+    // doesn't speak the literal asterisks aloud.
+    const spokenText = text.replace(/\*\*/g, "");
+    const utter = new SpeechSynthesisUtterance(spokenText);
     // A slightly relaxed pace reads as more conversational than a flat 1.0.
     utter.rate = 0.98;
     utter.pitch = 1.0;
