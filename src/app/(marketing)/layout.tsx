@@ -27,6 +27,7 @@ export default async function MarketingLayout({
             <span>West Coast Marine Training</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium text-wcmt-navy md:flex">
+            <Link href="/about">About Us</Link>
             <Link href="/#how-it-works">How It Works</Link>
             <Link href="/faq">FAQ</Link>
             {user ? (
