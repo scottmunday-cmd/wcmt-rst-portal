@@ -125,14 +125,33 @@ export default async function HomePage() {
                   </span>
                 )}
                 <h3 className="font-heading font-semibold text-wcmt-navy">{product.name}</h3>
-                <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">
-                  ${(product.price_cents / 100).toFixed(2)}
-                  {product.requires_location && <span className="text-base font-medium">+</span>}
-                </p>
+                {product.slug === "private-tuition" ? (
+                  <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">
+                    $150<span className="text-base font-medium">/hr</span>
+                  </p>
+                ) : (
+                  <p className="mt-1 font-heading text-2xl font-bold text-wcmt-orange">
+                    ${(product.price_cents / 100).toFixed(2)}
+                    {product.requires_location && <span className="text-base font-medium">+</span>}
+                  </p>
+                )}
+                {product.slug === "private-tuition" && (
+                  <p className="text-xs text-slate-500">
+                    3-hour minimum (${(product.price_cents / 100).toFixed(0)}) — charged at booking
+                  </p>
+                )}
                 {product.requires_location && (
                   <p className="text-xs text-slate-500">Travel surcharge may apply outside Perth metro</p>
                 )}
                 <p className="mt-2 flex-1 text-sm text-slate-600">{product.description}</p>
+                {product.slug === "private-tuition" && (
+                  <p className="mt-2 text-sm text-slate-600">
+                    This can be for individual/small group RST training and assessments,
+                    vessel handling and safety training, or just to have someone
+                    experienced onboard to help you feel comfortable setting up or
+                    operating your new pride and joy.
+                  </p>
+                )}
                 {product.featured && (
                   <p className="mt-2 text-sm font-medium text-wcmt-navy">
                     ✓ Includes online content &amp; lifetime reference access after certification
