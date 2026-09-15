@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/server";
+import { sendSms, renderSmsTemplate } from "@/lib/sms";
 
 // This is the safety net, not the primary path — see the "Stripe
 // integration" section of the Technical Build Pack. The Admin Portal
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
         .from("orders")
         .update({ status: "paid" })
         .eq("stripe_session_id", session.id)
-        .select("id");
+        .select("id, profile_id, product_id, assessment_slot_id");
 
       if (updateError) {
         console.error("[stripe webhook] failed to mark order paid", {
@@ -68,6 +69,71 @@ export async function POST(request: NextRequest) {
           sessionId: session.id,
           matchedOrders: updatedRows?.length ?? 0,
         });
+      }
+
+      // Booking confirmation SMS. Best-effort and never lets a send
+      // problem affect the 200 OK Stripe needs — sendSms() itself never
+      // throws, but the lookups around it are wrapped too. Runs once per
+      // order (the .update() above only matches a still-pending order by
+      // stripe_session_id, so a retried webhook delivery for an
+      // already-paid order matches zero rows and skips this entirely).
+      const order = updatedRows?.[0];
+      if (order) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("first_name, mobile, sms_consent")
+            .eq("id", order.profile_id)
+            .single<{ first_name: string | null; mobile: string | null; sms_consent: boolean }>();
+
+          if (profile?.sms_consent && profile.mobile) {
+            const { data: product } = await supabase
+              .from("products")
+              .select("name")
+              .eq("id", order.product_id)
+              .single<{ name: string }>();
+
+            let details = "";
+            if (order.assessment_slot_id) {
+              const { data: slot } = await supabase
+                .from("assessment_slots")
+                .select("assessment_date, assessment_time, location_id")
+                .eq("id", order.assessment_slot_id)
+                .single<{ assessment_date: string; assessment_time: string; location_id: string }>();
+
+              if (slot) {
+                const { data: location } = await supabase
+                  .from("assessment_locations")
+                  .select("name")
+                  .eq("id", slot.location_id)
+                  .single<{ name: string }>();
+
+                details = `You're booked for ${slot.assessment_date} at ${slot.assessment_time}${
+                  location ? `, ${location.name}` : ""
+                }. We'll text a reminder closer to the day.`;
+              }
+            }
+
+            const message = await renderSmsTemplate("booking_confirmation", {
+              first_name: profile.first_name ?? "there",
+              product_name: product?.name ?? "your course",
+              details,
+            });
+
+            await sendSms({
+              profileId: order.profile_id,
+              mobile: profile.mobile,
+              templateName: "booking_confirmation",
+              message,
+            });
+          }
+        } catch (smsErr) {
+          console.error("[stripe webhook] booking confirmation sms failed", {
+            sessionId: session.id,
+            orderId: order.id,
+            error: smsErr,
+          });
+        }
       }
       break;
     }

@@ -13,6 +13,7 @@ const NAV = [
   { href: "/assessment", label: "Assessment" },
   { href: "/reference", label: "Reference Library" },
   { href: "/bookmarks", label: "Bookmarks" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default async function StudentLayout({

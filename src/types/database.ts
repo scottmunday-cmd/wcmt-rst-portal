@@ -154,6 +154,10 @@ export interface AssessmentBooking {
   // created some other way.
   order_id: string | null;
   booked_at: string;
+  // Set once the 48-hours-before-assessment SMS reminder has been sent
+  // for this booking (src/app/api/cron/assessment-reminders/route.ts) —
+  // null means not sent yet.
+  reminder_sent_at: string | null;
 }
 
 export interface ReferenceArticle {

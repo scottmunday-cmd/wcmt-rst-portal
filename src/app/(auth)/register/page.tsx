@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ export default function RegisterPage() {
         data: {
           first_name: firstName,
           last_name: lastName,
+          mobile: mobile.trim() || null,
           sms_consent: smsConsent,
         },
       },
@@ -124,6 +126,23 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
             />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-wcmt-navy" htmlFor="mobile">
+              Mobile number
+            </label>
+            <input
+              id="mobile"
+              type="tel"
+              inputMode="tel"
+              placeholder="04XX XXX XXX"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              Optional — only used for booking confirmations and assessment reminders if you opt in below.
+            </p>
           </div>
           <div>
             <label className="text-sm font-medium text-wcmt-navy" htmlFor="password">
