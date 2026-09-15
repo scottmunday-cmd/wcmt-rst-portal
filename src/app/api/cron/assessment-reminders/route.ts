@@ -3,10 +3,19 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { sendSms, renderSmsTemplate } from "@/lib/sms";
 
 /**
- * Sends the "your assessment is in 48 hours" SMS reminder. Triggered by
- * Vercel Cron (see vercel.json — runs hourly) rather than on-demand, since
- * nothing else in this app schedules anything yet (see the comment on
- * REMINDER_WINDOW_HOURS below for why hourly).
+ * Sends the "your assessment is in 2 days" SMS reminder. Triggered by
+ * Vercel Cron (see vercel.json — runs once daily, at 00:00 UTC = 8am
+ * Perth time) rather than on-demand, since nothing else in this app
+ * schedules anything yet.
+ *
+ * Originally built to run hourly with a precise 47h-49h window, but
+ * Vercel's Hobby plan only allows daily cron schedules (Pro is needed for
+ * anything more frequent) — rather than pay for Pro just for this, this
+ * now matches by calendar date instead of an hour-precision window: once
+ * a day, it reminds everyone whose assessment is exactly 2 days away
+ * (Perth-local date). The trade-off is the reminder always goes out at
+ * ~8am rather than exactly 48 hours before the appointment time — a
+ * fine trade for a text that just says "in 2 days", and it's free.
  *
  * Auth: Vercel automatically sends `Authorization: Bearer $CRON_SECRET`
  * on requests it triggers itself, as long as a CRON_SECRET env var is set
@@ -18,14 +27,8 @@ import { sendSms, renderSmsTemplate } from "@/lib/sms";
 // WA (Australia/Perth, AWST) never observes daylight saving, so it's a
 // fixed UTC+8 year-round — no timezone-library/DB-timezone-conversion
 // needed, just a constant offset.
-const PERTH_UTC_OFFSET = "+08:00";
-
-// Cron runs hourly; a target 2-hour window (47h-49h out) guarantees every
-// booking passes through it exactly once even if a run is a little late,
-// without ever double-covering — reminder_sent_at is the real de-dupe
-// guard regardless, this window just keeps each run's query small.
-const WINDOW_MIN_HOURS = 47;
-const WINDOW_MAX_HOURS = 49;
+const PERTH_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
+const DAYS_BEFORE = 2;
 
 interface BookingRow {
   id: string;
@@ -48,11 +51,15 @@ export async function GET(request: NextRequest) {
   const admin = createAdminClient();
   const now = Date.now();
 
-  // Narrow to the next few days server-side (cheap index-friendly filter)
-  // — the exact 47h/49h cut happens in JS below, where AWST's fixed
-  // offset makes the math trivial.
-  const today = new Date(now).toISOString().slice(0, 10);
-  const in4Days = new Date(now + 4 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  // "Today" in Perth-local terms, then +2 days — the one calendar date
+  // this run cares about. Cron fires at 00:00 UTC (8am Perth), so adding
+  // the fixed AWST offset before slicing the date is enough; no
+  // timezone library needed.
+  const perthNowIso = new Date(now + PERTH_UTC_OFFSET_MS).toISOString();
+  const perthToday = perthNowIso.slice(0, 10);
+  const targetDate = new Date(now + PERTH_UTC_OFFSET_MS + DAYS_BEFORE * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
 
   const { data: bookings, error } = await admin
     .from("assessment_bookings")
@@ -66,14 +73,15 @@ export async function GET(request: NextRequest) {
     )
     .eq("status", "booked")
     .is("reminder_sent_at", null)
-    .gte("assessment_slots.assessment_date", today)
-    .lte("assessment_slots.assessment_date", in4Days)
+    .eq("assessment_slots.assessment_date", targetDate)
     .returns<BookingRow[]>();
 
   if (error) {
     console.error("[cron:assessment-reminders] query failed", error);
     return NextResponse.json({ error: "Query failed" }, { status: 500 });
   }
+
+  console.log("[cron:assessment-reminders] run", { perthToday, targetDate, candidates: bookings?.length ?? 0 });
 
   let sent = 0;
   let skipped = 0;
@@ -84,12 +92,6 @@ export async function GET(request: NextRequest) {
     if (!slot || !slot.active || !profileId) {
       skipped++;
       continue;
-    }
-
-    const slotDate = new Date(`${slot.assessment_date}T${slot.assessment_time}${PERTH_UTC_OFFSET}`);
-    const hoursUntil = (slotDate.getTime() - now) / (1000 * 60 * 60);
-    if (hoursUntil < WINDOW_MIN_HOURS || hoursUntil > WINDOW_MAX_HOURS) {
-      continue; // not this booking's turn yet (or already past it)
     }
 
     const { data: profile } = await admin
@@ -124,8 +126,9 @@ export async function GET(request: NextRequest) {
     });
 
     // Marked sent regardless of delivery success — a real send failure
-    // (bad number, ClickSend outage) shouldn't retry hourly and risk a
-    // burst of duplicate texts once whatever was wrong is fixed. sms_logs
+    // (bad number, ClickSend outage) shouldn't retry on tomorrow's run and
+    // risk a confusing late duplicate text once whatever was wrong is
+    // fixed. sms_logs
     // (written by sendSms itself) is the record of what actually happened.
     await admin
       .from("assessment_bookings")
