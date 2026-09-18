@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/Card";
-import { ButtonLink } from "@/components/ui/Button";
 import { LogoutButton } from "@/components/LogoutButton";
 import { Logo } from "@/components/Logo";
 
@@ -26,14 +23,16 @@ export default async function StudentLayout({
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) redirect("/login");
 
-  // This is the UI-level mirror of the RLS gate added in
-  // 0008_content_paywall.sql (has_paid_access()) — a signed-up-but-unpaid
-  // account previously landed here and every page underneath rendered
-  // fine, because nothing anywhere actually checked payment status.
-  // The database policies are the real security boundary; this check
-  // just means an unpaid visitor sees an honest "you haven't bought
-  // this yet" screen instead of empty-looking pages where the content
-  // silently failed to load.
+  // This layout only checks that someone is signed in and renders the
+  // shared header/nav — it no longer decides which pages are blocked for
+  // an unpaid account. That check (hasPaidAccess, src/lib/access.ts) moved
+  // to each gated page itself on 18 September 2026, after a bug where a
+  // student's first click into /assessment right after signing up could
+  // still show the block screen. See the comment on hasPaidAccess() for
+  // the full reason — short version: this layout is shared by all routes
+  // under it, and Next.js's client-side router doesn't guarantee it
+  // re-renders on every navigation between sibling pages the way each
+  // page itself does, so it can't reliably vary its output by pathname.
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -41,60 +40,6 @@ export default async function StudentLayout({
     .single<{ role: string }>();
 
   const isStaff = profile?.role === "admin" || profile?.role === "instructor";
-
-  // Found 18 September 2026: the in-person RST Assessment is a
-  // requires_slot product (see the marketing page and
-  // (student)/assessment/page.tsx) — buying it IS what happens on
-  // /assessment, by picking a date then paying via /api/checkout. A
-  // student buying it as their very first purchase has no paid order yet,
-  // so the blanket "already paid for something" gate below was catching
-  // them before they could ever reach the calendar to pay. /assessment
-  // itself carries no sensitive content (just published dates/prices), so
-  // it's safe to exempt from this check specifically — every other route
-  // under here still requires hasAccess exactly as before.
-  const pathname = (await headers()).get("x-pathname") ?? "";
-  const isAssessmentBookingRoute = pathname.startsWith("/assessment");
-
-  let hasAccess = isStaff || isAssessmentBookingRoute;
-  if (!hasAccess) {
-    const { data: paidOrder } = await supabase
-      .from("orders")
-      .select("id")
-      .eq("profile_id", userData.user.id)
-      .eq("status", "paid")
-      .limit(1)
-      .maybeSingle();
-    hasAccess = !!paidOrder;
-  }
-
-  if (!hasAccess) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-wcmt-bg px-6">
-        <Card className="max-w-md text-center">
-          <h1 className="font-heading text-xl font-bold text-wcmt-navy">
-            You haven&apos;t purchased a course yet
-          </h1>
-          <p className="mt-3 text-sm text-slate-600">
-            Your account is set up, but modules, the reference library and
-            assessment booking only unlock once you&apos;ve bought Study
-            Only, RST Assessment, or Private Tuition.
-          </p>
-          <ButtonLink href="/#pricing" variant="primary" className="mt-6">
-            View Courses
-          </ButtonLink>
-          <p className="mt-4 text-xs text-slate-400">
-            Already paid and seeing this by mistake?{" "}
-            <Link href="/faq" className="underline">
-              Get in touch
-            </Link>
-            . Testing with the wrong account?{" "}
-            <LogoutButton className="text-wcmt-orange underline" /> and log
-            back in with the right one.
-          </p>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-wcmt-bg">
@@ -117,9 +62,9 @@ export default async function StudentLayout({
               staff account logging in here saw exactly the same student
               nav as before, with no way to discover /admin or
               /instructor short of typing the URL directly. isStaff
-              (defined above, already used to bypass the paywall screen)
-              is the same check; this just makes staff-only access
-              visible instead of hidden.
+              (defined above, the same check hasPaidAccess() uses to let
+              staff bypass the paywall) is reused here to make staff-only
+              access visible instead of hidden.
             */}
             {profile?.role === "admin" && (
               <Link href="/admin/products" className="hover:text-wcmt-orange">

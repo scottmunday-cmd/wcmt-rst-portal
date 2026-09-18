@@ -1,3 +1,7 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/access";
+import { PaywallGate } from "@/components/PaywallGate";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -51,7 +55,15 @@ const STEPS = [
   },
 ];
 
-export default function WelcomePage() {
+export default async function WelcomePage() {
+  const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) redirect("/login");
+
+  if (!(await hasPaidAccess(supabase, userData.user.id))) {
+    return <PaywallGate />;
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="text-center">

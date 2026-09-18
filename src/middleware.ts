@@ -5,17 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // place to add role-based route protection (e.g. redirect a non-admin away
 // from /admin) once the `profiles` table is queried here.
 export async function middleware(request: NextRequest) {
-  // Forwarded as a *request* header (not just set on the response) so that
-  // (student)/layout.tsx — a Server Component, which can only read
-  // `headers()` off the incoming request — can see it. Added 18 September
-  // 2026 so that layout can exempt /assessment from its "already paid for
-  // something" check — see the comment there. NextResponse.next() only
-  // needs something with a `.headers` property here, not a real
-  // NextRequest, so this is enough on its own without cloning `request`.
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-pathname", request.nextUrl.pathname);
-
-  let response = NextResponse.next({ request: { headers: requestHeaders } });
+  let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,7 +19,7 @@ export async function middleware(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
-          response = NextResponse.next({ request: { headers: requestHeaders } });
+          response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -51,6 +41,11 @@ export const config = {
     // raw request body, and this route does its own auth (webhook secret) —
     // it doesn't need (and shouldn't risk any interference from) the cookie
     // refresh middleware does for browser-facing pages.
+    //
+    // The 18 September 2026 x-pathname header this middleware used to
+    // forward (for (student)/layout.tsx to read) was removed the same day
+    // — see src/lib/access.ts for why that approach didn't work reliably
+    // and what replaced it.
     "/((?!_next/static|_next/image|favicon.ico|api/stripe/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

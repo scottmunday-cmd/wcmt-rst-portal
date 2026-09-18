@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/access";
+import { PaywallGate } from "@/components/PaywallGate";
 import { Card } from "@/components/ui/Card";
 import { ModuleQuiz } from "@/components/ModuleQuiz";
 import { PracticeExams } from "@/components/PracticeExams";
@@ -172,6 +175,12 @@ export default async function ModuleDetailPage({
 }) {
   const { moduleId } = await params;
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) redirect("/login");
+
+  if (!(await hasPaidAccess(supabase, userData.user.id))) {
+    return <PaywallGate />;
+  }
 
   let module_: Module | null = null;
   let lessons: Lesson[] = [];

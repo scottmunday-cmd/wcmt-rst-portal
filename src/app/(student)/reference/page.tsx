@@ -1,4 +1,7 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/access";
+import { PaywallGate } from "@/components/PaywallGate";
 import { Card } from "@/components/ui/Card";
 import { GiveWayDiagram, SoundSignalDiagram } from "@/components/diagrams/CollisionDiagrams";
 import { NavigationLightArcs } from "@/components/diagrams/NavigationLightArcs";
@@ -61,6 +64,13 @@ function Section({
 
 export default async function ReferenceLibraryPage() {
   const supabase = await createClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData?.user) redirect("/login");
+
+  if (!(await hasPaidAccess(supabase, userData.user.id))) {
+    return <PaywallGate />;
+  }
+
   let articles: ReferenceArticle[] = [];
   let loadError: string | null = null;
 

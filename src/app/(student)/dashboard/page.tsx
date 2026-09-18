@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/access";
+import { PaywallGate } from "@/components/PaywallGate";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { readinessLevel, READINESS_COLORS } from "@/lib/readiness";
@@ -11,6 +13,10 @@ export default async function DashboardPage() {
 
   if (userError || !userData?.user) {
     redirect("/login");
+  }
+
+  if (!(await hasPaidAccess(supabase, userData.user.id))) {
+    return <PaywallGate />;
   }
 
   // Defensive: this page will be opened before the schema/migrations have

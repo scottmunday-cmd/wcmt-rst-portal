@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { hasPaidAccess } from "@/lib/access";
+import { PaywallGate } from "@/components/PaywallGate";
 import { Card } from "@/components/ui/Card";
 import { ProfileSettingsForm } from "@/components/ProfileSettingsForm";
 
@@ -9,6 +11,10 @@ export default async function SettingsPage() {
 
   if (userError || !userData?.user) {
     redirect("/login");
+  }
+
+  if (!(await hasPaidAccess(supabase, userData.user.id))) {
+    return <PaywallGate />;
   }
 
   const { data: profile } = await supabase
