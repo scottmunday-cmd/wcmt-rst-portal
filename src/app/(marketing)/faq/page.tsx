@@ -22,6 +22,25 @@ export default function FaqPage() {
             </div>
           ))}
         </dl>
+
+        {/*
+          Added 18 September 2026, per Scott: he wants a way to be reached
+          directly on here for anyone who genuinely needs it, but kept
+          deliberately low-key (small, muted, at the very bottom, no
+          button/CTA styling) — he'd rather people keep browsing the site
+          than this becoming a first port of call and generating a lot of
+          sales calls. The homepage's "Request Callback" button (see
+          RequestCallbackForm.tsx) is the intended main contact path.
+        */}
+        <div className="mt-10 border-t border-slate-200 pt-6 text-center">
+          <p className="text-xs text-slate-400">
+            Still have a question? You can reach Scotty directly on{" "}
+            <a href="tel:+61408927905" className="underline hover:text-wcmt-coastal">
+              0408 927 905
+            </a>
+            .
+          </p>
+        </div>
       </div>
     </section>
   );

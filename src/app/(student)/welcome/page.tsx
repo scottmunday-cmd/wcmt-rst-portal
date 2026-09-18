@@ -79,18 +79,25 @@ export default async function WelcomePage() {
         <p className="text-sm leading-relaxed text-slate-700">
           The next step is to study for your theory test. Your theory test is
           held first on your assessment day, and you can&apos;t move onto the
-          practical test before it&apos;s passed. Not only that — learning the
-          theory well will give you all the information you need to boat
-          safely once you&apos;re a qualified skipper!
+          practical test before it&apos;s passed. Without adequate study, the
+          theory test can be the hardest part of getting your Skipper&apos;s
+          Ticket.
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-700">
-          Without adequate study, the theory test can be the hardest part of
-          getting your Skipper&apos;s Ticket. Don&apos;t worry though — we&apos;ve got
-          you covered with our easy-to-use study guide on the next page.
+          Don&apos;t worry though! We&apos;ve got you covered with our
+          easy-to-use study guide on the next page! Aside from passing the
+          test, learning the theory well will give you all the information
+          you need to boat safely once you&apos;re a qualified skipper!
         </p>
         <p className="mt-3 text-sm leading-relaxed text-slate-700">
           Have fun studying, and if anything doesn&apos;t make sense, please
-          feel free to reach out.
+          feel free to reach out — Scotty, 0408 927 905.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700">
+          There are some forms below you may need to complete and bring
+          with you on the day — see Module 1 for details. You can always
+          click back to this page from &ldquo;How it Works&rdquo; at the
+          top right of the screen.
         </p>
       </Card>
 

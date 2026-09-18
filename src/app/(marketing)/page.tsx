@@ -3,6 +3,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Logo } from "@/components/Logo";
 import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
+import { RequestCallbackForm } from "@/components/RequestCallbackForm";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { AssessmentLocation, Product } from "@/types/database";
 
@@ -76,9 +77,7 @@ export default async function HomePage() {
             <ButtonLink href="/assessment" variant="outline" className="border-white text-white hover:bg-white hover:text-wcmt-navy">
               Book Assessment
             </ButtonLink>
-            <ButtonLink href="/faq" variant="outline" className="border-white text-white hover:bg-white hover:text-wcmt-navy">
-              Request Callback
-            </ButtonLink>
+            <RequestCallbackForm />
           </div>
         </div>
       </section>

@@ -65,7 +65,11 @@ export function normalizeAuMobile(raw: string): string | null {
 }
 
 interface SendSmsParams {
-  profileId: string;
+  // Null for a send with no associated student profile — e.g. the
+  // callback-request SMS to Scott himself (see /api/callback-request).
+  // sms_logs.profile_id is nullable for exactly this (0001_core_schema.sql:
+  // "references profiles(id) on delete set null").
+  profileId: string | null;
   mobile: string;
   templateName: string;
   message: string;
