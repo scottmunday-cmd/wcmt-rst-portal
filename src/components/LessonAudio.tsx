@@ -51,12 +51,27 @@ function pickBestVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | n
 export function LessonAudio({ text }: { text: string }) {
   const [supported, setSupported] = useState(false);
   const [state, setState] = useState<"idle" | "playing" | "paused">("idle");
+  const [isIOS, setIsIOS] = useState(false);
   const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
 
   useEffect(() => {
     const hasSpeech = typeof window !== "undefined" && "speechSynthesis" in window;
     setSupported(hasSpeech);
+
+    // iPhones/iPads ship a very flat, low-effort default reading voice for
+    // web pages (Safari's Web Speech API only exposes the *compact*
+    // system voice unless a better one has been downloaded on the device —
+    // there's no code-side fix for this, it's an iOS setting). Detecting
+    // iOS here just decides whether to show the tip below telling students
+    // how to fix it themselves; iPadOS reports as "MacIntel" with touch
+    // support, which is why that's checked too, not just iPhone/iPod.
+    const ua = window.navigator.userAgent;
+    setIsIOS(
+      /iPad|iPhone|iPod/.test(ua) ||
+        (window.navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+
     if (!hasSpeech) return;
 
     function loadVoices() {
@@ -117,31 +132,53 @@ export function LessonAudio({ text }: { text: string }) {
   if (!supported) return null;
 
   return (
-    <div className="flex items-center gap-2">
-      {state === "idle" && (
-        <Button variant="outline" onClick={play} className="px-3 py-1.5 text-xs">
-          🔊 Listen to this lesson
-        </Button>
-      )}
-      {state === "playing" && (
-        <>
-          <Button variant="outline" onClick={pause} className="px-3 py-1.5 text-xs">
-            ⏸ Pause
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
+        {state === "idle" && (
+          <Button variant="outline" onClick={play} className="px-3 py-1.5 text-xs">
+            🔊 Listen to this lesson
           </Button>
-          <Button variant="outline" onClick={stop} className="px-3 py-1.5 text-xs">
-            ⏹ Stop
-          </Button>
-        </>
-      )}
-      {state === "paused" && (
-        <>
-          <Button variant="outline" onClick={resume} className="px-3 py-1.5 text-xs">
-            ▶ Resume
-          </Button>
-          <Button variant="outline" onClick={stop} className="px-3 py-1.5 text-xs">
-            ⏹ Stop
-          </Button>
-        </>
+        )}
+        {state === "playing" && (
+          <>
+            <Button variant="outline" onClick={pause} className="px-3 py-1.5 text-xs">
+              ⏸ Pause
+            </Button>
+            <Button variant="outline" onClick={stop} className="px-3 py-1.5 text-xs">
+              ⏹ Stop
+            </Button>
+          </>
+        )}
+        {state === "paused" && (
+          <>
+            <Button variant="outline" onClick={resume} className="px-3 py-1.5 text-xs">
+              ▶ Resume
+            </Button>
+            <Button variant="outline" onClick={stop} className="px-3 py-1.5 text-xs">
+              ⏹ Stop
+            </Button>
+          </>
+        )}
+      </div>
+      {/*
+        There's no code-side fix for iOS's flat default reading voice — see
+        the comment above on isIOS. This just tells students the one thing
+        that does fix it: downloading a better system voice, which Safari
+        then picks up automatically next time this page loads.
+      */}
+      {isIOS && (
+        <details className="text-xs text-slate-500">
+          <summary className="cursor-pointer select-none font-medium text-wcmt-navy underline decoration-dotted">
+            Sounds robotic on iPhone/iPad? Here&apos;s a quick fix
+          </summary>
+          <p className="mt-1 max-w-md">
+            iPhones use a very basic voice for reading web pages by default. For a much more
+            natural one: open <strong>Settings → Accessibility → Spoken Content → Voices →
+            English</strong>, choose an Australian voice (e.g. Karen or Catherine), and download
+            the <strong>Enhanced</strong> or <strong>Premium</strong> version. Come back and
+            reload this page afterwards — Listen to this lesson will use it automatically.
+          </p>
+        </details>
       )}
     </div>
   );

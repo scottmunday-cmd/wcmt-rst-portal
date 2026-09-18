@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/LogoutButton";
 import { Logo } from "@/components/Logo";
+import { MobileNav } from "@/components/MobileNav";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -41,15 +42,29 @@ export default async function StudentLayout({
 
   const isStaff = profile?.role === "admin" || profile?.role === "instructor";
 
+  const isAdmin = profile?.role === "admin";
+
   return (
     <div className="min-h-screen bg-wcmt-bg">
-      <header className="border-b border-slate-200 bg-white">
+      {/*
+        `relative` here anchors MobileNav's dropdown (`absolute inset-x-0
+        top-full`) directly under the header instead of under the page body.
+      */}
+      <header className="relative border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2 font-heading font-bold text-wcmt-navy">
             <Logo variant="icon" className="h-9" />
             <span>West Coast Marine Training</span>
           </Link>
-          <nav className="flex items-center gap-5 text-sm font-medium text-wcmt-navy">
+          {/*
+            Found 18 September 2026: once installed to a phone's home
+            screen, this row of 7 links plus Log Out (and sometimes Admin/
+            Instructor Portal) had no way to wrap or shrink — it just ran
+            off the right edge of the screen. This full inline nav is now
+            desktop-only (`md:flex`, hidden below that); MobileNav (a
+            hamburger + dropdown) takes over on phone-width screens.
+          */}
+          <nav className="hidden items-center gap-5 text-sm font-medium text-wcmt-navy md:flex">
             {NAV.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-wcmt-orange">
                 {item.label}
@@ -66,7 +81,7 @@ export default async function StudentLayout({
               staff bypass the paywall) is reused here to make staff-only
               access visible instead of hidden.
             */}
-            {profile?.role === "admin" && (
+            {isAdmin && (
               <Link href="/admin/products" className="hover:text-wcmt-orange">
                 Admin Portal
               </Link>
@@ -78,6 +93,7 @@ export default async function StudentLayout({
             )}
             <LogoutButton className="text-wcmt-navy hover:text-wcmt-orange" />
           </nav>
+          <MobileNav nav={NAV} isAdmin={isAdmin} isStaff={isStaff} />
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
