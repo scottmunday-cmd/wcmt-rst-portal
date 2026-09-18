@@ -16,9 +16,9 @@ export default function AboutPage() {
             Our primary trainer, Scotty, is a vastly experienced Marine Master,
             having operated various types of vessels up and down the West Coast
             of WA for over 25 years. He&apos;s also an experienced trainer and
-            assessor — currently training tug masters on multimillion-dollar ASD
-            tugs in the busy shipping port of Port Hedland for BHP, when he
-            isn&apos;t home offering recreational training.
+            assessor — training tug masters on multimillion-dollar ASD tugs
+            for BHP in the busy port of Port Hedland (when he isn&apos;t home
+            offering recreational training).
           </p>
           <p>
             Our main training vessel is the Blue Bull, a 6.5m Ali Centercab
