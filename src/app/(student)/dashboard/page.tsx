@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { hasPaidAccess } from "@/lib/access";
 import { PaywallGate } from "@/components/PaywallGate";
+import { InstallAppPrompt } from "@/components/InstallAppPrompt";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
 import { readinessLevel, READINESS_COLORS } from "@/lib/readiness";
@@ -47,6 +48,8 @@ export default async function DashboardPage() {
       <h1 className="font-heading text-2xl font-bold text-wcmt-navy">
         Welcome back{userData.user.user_metadata?.first_name ? `, ${userData.user.user_metadata.first_name}` : ""}
       </h1>
+
+      <InstallAppPrompt />
 
       {loadError && (
         <Card className="border-amber-300 bg-amber-50 text-sm text-amber-800">
