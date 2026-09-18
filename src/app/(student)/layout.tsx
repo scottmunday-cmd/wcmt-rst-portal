@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
@@ -41,7 +42,20 @@ export default async function StudentLayout({
 
   const isStaff = profile?.role === "admin" || profile?.role === "instructor";
 
-  let hasAccess = isStaff;
+  // Found 18 September 2026: the in-person RST Assessment is a
+  // requires_slot product (see the marketing page and
+  // (student)/assessment/page.tsx) — buying it IS what happens on
+  // /assessment, by picking a date then paying via /api/checkout. A
+  // student buying it as their very first purchase has no paid order yet,
+  // so the blanket "already paid for something" gate below was catching
+  // them before they could ever reach the calendar to pay. /assessment
+  // itself carries no sensitive content (just published dates/prices), so
+  // it's safe to exempt from this check specifically — every other route
+  // under here still requires hasAccess exactly as before.
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isAssessmentBookingRoute = pathname.startsWith("/assessment");
+
+  let hasAccess = isStaff || isAssessmentBookingRoute;
   if (!hasAccess) {
     const { data: paidOrder } = await supabase
       .from("orders")
