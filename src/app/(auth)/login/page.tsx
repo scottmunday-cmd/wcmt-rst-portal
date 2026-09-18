@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function LoginPage() {
-  const supabase = createClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,21 +16,39 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
+    // Signs in via /api/auth/login (a server-side call) rather than the
+    // browser Supabase client — see that route's comment for why: it fixes
+    // a real bug where iPhone Safari (especially once installed to the
+    // home screen) could loop straight back to this page after a correct
+    // password, because the old client-side sign-in's cookie write could
+    // lose a race against the immediate redirect.
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch {
       setLoading(false);
-      setError(error.message);
+      setError("Couldn't reach the server — check your connection and try again.");
       return;
     }
-    // A plain client-side router.push("/dashboard") here raced against
-    // AuthRefresher's own router.refresh() (both react to the SIGNED_IN
-    // event this signInWithPassword() call fires) — same bug fixed in
-    // LogoutButton.tsx on 12 September 2026: the two navigations could
-    // collide and leave you stuck looking at the login page with no
-    // error, even though you were actually signed in underneath. A full
-    // page load can't collide with that in-app refresh, since it discards
-    // the current page (and any in-flight client navigation) entirely.
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setLoading(false);
+      setError(data.error ?? "Something went wrong logging in — please try again.");
+      return;
+    }
+
+    // A plain client-side router.push("/dashboard") here would race
+    // against AuthRefresher's own router.refresh() (same bug fixed in
+    // LogoutButton.tsx on 12 September 2026) — a full page load can't
+    // collide with that in-app refresh, since it discards the current
+    // page (and any in-flight client navigation) entirely. The session
+    // cookie is already reliably set by this point regardless, since it
+    // arrived on /api/auth/login's own response.
     window.location.href = "/dashboard";
   }
 

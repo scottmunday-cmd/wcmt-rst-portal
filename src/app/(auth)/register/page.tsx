@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function RegisterPage() {
-  const supabase = createClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,44 +21,56 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
 
-    // The `profiles` row itself should be created by a database trigger on
-    // auth.users insert (not written here) so it can never be skipped or
-    // spoofed by the client. This call just passes along the extra fields
-    // via user metadata for that trigger to read.
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
+    // Signs up via /api/auth/register (a server-side call) rather than the
+    // browser Supabase client — same 18 September 2026 fix as
+    // login/page.tsx, and for the same reason: see that route's (and
+    // /api/auth/login's) comment. The `profiles` row itself is created by
+    // a database trigger on auth.users insert (not here) — this just
+    // passes the extra fields along as user metadata for that trigger to
+    // read, same as before.
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
           mobile: mobile.trim() || null,
-          sms_consent: smsConsent,
-        },
-      },
-    });
+          smsConsent,
+        }),
+      });
+    } catch {
+      setLoading(false);
+      setError("Couldn't reach the server — check your connection and try again.");
+      return;
+    }
 
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
-    if (error) {
-      setError(error.message);
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong creating your account — please try again.");
       return;
     }
 
     // If the Supabase project has "Confirm email" turned on (the default
     // for a new project), signUp() succeeds but returns no session until
-    // the person clicks the confirmation link in their email — data.user
-    // exists but data.session is null. Redirecting to /dashboard in that
-    // state just bounces them straight to /login looking logged-out,
-    // which is confusing right after "successfully" creating an account.
-    if (!data.session) {
+    // the person clicks the confirmation link in their email. Redirecting
+    // to /dashboard in that state just bounces them straight to /login
+    // looking logged-out, which is confusing right after "successfully"
+    // creating an account.
+    if (data.needsEmailConfirmation) {
       setCheckEmail(true);
       return;
     }
 
-    // See the comment on the equivalent line in login/page.tsx (12
-    // September 2026 fix) — a client-side router.push/refresh here races
-    // against AuthRefresher's own router.refresh() on the same SIGNED_IN
-    // event, and can leave the button spinning with no visible result.
+    // See the comment on the equivalent line in login/page.tsx — a full
+    // page load here (not a client-side router.push/refresh) avoids
+    // racing AuthRefresher's own router.refresh() on the same SIGNED_IN
+    // event, and the session cookie is already reliably set by this
+    // point since it arrived on /api/auth/register's own response.
     window.location.href = "/dashboard";
   }
 

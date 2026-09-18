@@ -5,6 +5,13 @@ import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
+// The recovery session (from the emailed reset link) is only ever
+// established client-side — Supabase's browser client has to parse the
+// tokens out of the URL hash, there's no way to do that on the server —
+// so we still need the browser client below for the "is this link valid"
+// check. Only the actual password update goes through a server route
+// now; see /api/auth/reset-password's comment for why.
+
 // Where the emailed reset link (from forgot-password) lands. Supabase's
 // browser client reads the recovery tokens out of the URL hash on load and
 // fires a PASSWORD_RECOVERY auth event once that session is established —
@@ -63,13 +70,32 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
 
-    if (error) {
-      setError(error.message);
+    // Goes through /api/auth/reset-password (a server-side call) rather
+    // than the browser client's updateUser() directly — same 18 September
+    // 2026 fix as login/page.tsx and register/page.tsx. See that route's
+    // comment for why.
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+    } catch {
+      setLoading(false);
+      setError("Couldn't reach the server — check your connection and try again.");
       return;
     }
+
+    const data = await res.json().catch(() => ({}));
+    setLoading(false);
+
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong updating your password — please try again.");
+      return;
+    }
+
     setDone(true);
     // Same full-page-load fix applied to login/register/logout on 12
     // September 2026: a client-side router.push/refresh here isn't known
