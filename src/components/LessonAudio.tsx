@@ -16,7 +16,8 @@ const AU_NAME_HINTS = [
   "william", // Microsoft Edge/Windows AU neural voice
   "catherine", // Windows AU voice
   "karen", // macOS/iOS AU voice
-  "lee", // macOS AU voice (older)
+  "lee", // macOS/iOS AU voice
+  "matilda", // macOS/iOS AU voice
 ];
 
 function scoreVoice(voice: SpeechSynthesisVoice): number {
@@ -173,10 +174,10 @@ export function LessonAudio({ text }: { text: string }) {
           </summary>
           <p className="mt-1 max-w-md">
             iPhones use a very basic voice for reading web pages by default. For a much more
-            natural one: open <strong>Settings → Accessibility → Spoken Content → Voices →
-            English</strong>, choose an Australian voice (e.g. Karen or Catherine), and download
-            the <strong>Enhanced</strong> or <strong>Premium</strong> version. Come back and
-            reload this page afterwards — Listen to this lesson will use it automatically.
+            natural one: open <strong>Settings → Accessibility → Read &amp; Speak → Voices →
+            English → Voice</strong>. We recommend switching to <strong>Lee</strong> or{" "}
+            <strong>Matilda (Premium)</strong> to suit this content. Come back and reload this
+            page afterwards — Listen to this lesson will use it automatically.
           </p>
         </details>
       )}
