@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function AboutPage() {
   return (
     <section className="px-6 py-16">
@@ -25,6 +27,13 @@ export default function AboutPage() {
             way, but provides a nice, comfortable platform for learning —
             out of the weather if required.
           </p>
+          <Image
+            src="/about-blue-bull.jpg"
+            alt="The Blue Bull, West Coast Marine Training's main training vessel"
+            width={314}
+            height={227}
+            className="w-full max-w-md rounded-xl border border-slate-200 shadow-sm"
+          />
         </div>
       </div>
     </section>
