@@ -15,9 +15,16 @@ export default async function InstructorStudentsPage() {
   let loadError: string | null = null;
 
   try {
+    // Same fix, same day, same reason as admin/bookings/page.tsx: `students`
+    // has two foreign keys into `profiles` (profile_id and
+    // identity_verified_by), so the bare `profiles(...)` embed here was
+    // ambiguous and this page was silently failing to load anyone.
+    // `profiles!profile_id(...)` picks the right one explicitly.
     const { data, error } = await supabase
       .from("students")
-      .select("id, readiness_score, course_status, assessment_ready, profiles(first_name, last_name, email)")
+      .select(
+        "id, readiness_score, course_status, assessment_ready, profiles!profile_id(first_name, last_name, email)"
+      )
       .order("readiness_score", { ascending: false });
     if (error) throw error;
     students = (data as unknown as StudentRow[]) ?? [];

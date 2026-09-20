@@ -15,10 +15,18 @@ export default async function AdminBookingsPage() {
   let loadError: string | null = null;
 
   try {
+    // Found 19 September 2026: this page was silently failing to load any
+    // rows. `students` has TWO foreign keys into `profiles`
+    // (profile_id, and identity_verified_by — see 0001_core_schema.sql),
+    // so the bare `students(profiles(...))` embed below was ambiguous —
+    // PostgREST can't guess which relationship to follow and errors out,
+    // which this page's catch block quietly turned into the generic
+    // "couldn't load" banner. `profiles!profile_id(...)` tells it exactly
+    // which of the two to use.
     const { data, error } = await supabase
       .from("assessment_bookings")
       .select(
-        "id, status, booked_at, assessment_slots(assessment_date, assessment_time), students(profiles(first_name, last_name))"
+        "id, status, booked_at, assessment_slots(assessment_date, assessment_time), students(profiles!profile_id(first_name, last_name))"
       )
       .order("booked_at", { ascending: false });
     if (error) throw error;

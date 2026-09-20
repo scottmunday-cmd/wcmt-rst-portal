@@ -71,49 +71,57 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Booking confirmation SMS. Best-effort and never lets a send
-      // problem affect the 200 OK Stripe needs — sendSms() itself never
-      // throws, but the lookups around it are wrapped too. Runs once per
-      // order (the .update() above only matches a still-pending order by
-      // stripe_session_id, so a retried webhook delivery for an
-      // already-paid order matches zero rows and skips this entirely).
+      // Booking confirmation SMS (to the student) + new-booking alert (to
+      // Scott). Best-effort and never lets a send problem affect the 200
+      // OK Stripe needs — sendSms() itself never throws, but the lookups
+      // around it are wrapped too. Runs once per order (the .update()
+      // above only matches a still-pending order by stripe_session_id, so
+      // a retried webhook delivery for an already-paid order matches zero
+      // rows and skips this entirely).
       const order = updatedRows?.[0];
       if (order) {
         try {
           const { data: profile } = await supabase
             .from("profiles")
-            .select("first_name, mobile, sms_consent")
+            .select("first_name, last_name, mobile, sms_consent")
             .eq("id", order.profile_id)
-            .single<{ first_name: string | null; mobile: string | null; sms_consent: boolean }>();
+            .single<{
+              first_name: string | null;
+              last_name: string | null;
+              mobile: string | null;
+              sms_consent: boolean;
+            }>();
 
-          if (profile?.sms_consent && profile.mobile) {
-            const { data: product } = await supabase
-              .from("products")
-              .select("name")
-              .eq("id", order.product_id)
-              .single<{ name: string }>();
+          const { data: product } = await supabase
+            .from("products")
+            .select("name")
+            .eq("id", order.product_id)
+            .single<{ name: string }>();
 
-            let details = "";
-            if (order.assessment_slot_id) {
-              const { data: slot } = await supabase
-                .from("assessment_slots")
-                .select("assessment_date, assessment_time, location_id")
-                .eq("id", order.assessment_slot_id)
-                .single<{ assessment_date: string; assessment_time: string; location_id: string }>();
+          let details = "";
+          if (order.assessment_slot_id) {
+            const { data: slot } = await supabase
+              .from("assessment_slots")
+              .select("assessment_date, assessment_time, location_id")
+              .eq("id", order.assessment_slot_id)
+              .single<{ assessment_date: string; assessment_time: string; location_id: string }>();
 
-              if (slot) {
-                const { data: location } = await supabase
-                  .from("assessment_locations")
-                  .select("name")
-                  .eq("id", slot.location_id)
-                  .single<{ name: string }>();
+            if (slot) {
+              const { data: location } = await supabase
+                .from("assessment_locations")
+                .select("name")
+                .eq("id", slot.location_id)
+                .single<{ name: string }>();
 
-                details = `You're booked for ${slot.assessment_date} at ${slot.assessment_time}${
-                  location ? `, ${location.name}` : ""
-                }. We'll text a reminder closer to the day.`;
-              }
+              details = `You're booked for ${slot.assessment_date} at ${slot.assessment_time}${
+                location ? `, ${location.name}` : ""
+              }. We'll text a reminder closer to the day.`;
             }
+          }
 
+          // The student's own confirmation — gated on their sms_consent,
+          // same as always, since this lands on a customer's phone.
+          if (profile?.sms_consent && profile.mobile) {
             const message = await renderSmsTemplate("booking_confirmation", {
               first_name: profile.first_name ?? "there",
               product_name: product?.name ?? "your course",
@@ -127,8 +135,33 @@ export async function POST(request: NextRequest) {
               message,
             });
           }
+
+          // Scott's own new-booking alert — added 19 September 2026 so he
+          // doesn't have to keep checking the Bookings page to notice a
+          // new sign-up. Deliberately independent of the student's
+          // sms_consent above: that consent covers texts TO the student,
+          // not whether the business owner hears about a sale. Silently
+          // skipped (same as /api/callback-request) if OWNER_MOBILE_NUMBER
+          // isn't configured.
+          const ownerMobile = process.env.OWNER_MOBILE_NUMBER;
+          if (ownerMobile) {
+            const studentName =
+              `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() || "A student";
+            const ownerMessage = await renderSmsTemplate("owner_new_booking", {
+              student_name: studentName,
+              product_name: product?.name ?? "a course",
+              details,
+            });
+
+            await sendSms({
+              profileId: order.profile_id,
+              mobile: ownerMobile,
+              templateName: "owner_new_booking",
+              message: ownerMessage,
+            });
+          }
         } catch (smsErr) {
-          console.error("[stripe webhook] booking confirmation sms failed", {
+          console.error("[stripe webhook] booking notification sms failed", {
             sessionId: session.id,
             orderId: order.id,
             error: smsErr,

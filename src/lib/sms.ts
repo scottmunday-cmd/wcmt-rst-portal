@@ -27,6 +27,10 @@ const DEFAULT_TEMPLATES: Record<string, string> = {
     "Hi {{first_name}}, thanks for booking {{product_name}} with West Coast Marine Training! {{details}} Reply STOP to opt out of SMS.",
   assessment_reminder_48h:
     "Hi {{first_name}}, reminder: your RST Assessment is coming up in 2 days — {{date}} at {{time}}, {{location}}. See you there! — West Coast Marine Training. Reply STOP to opt out.",
+  // Sent to OWNER_MOBILE_NUMBER (Scott), not the student — see the Stripe
+  // webhook's checkout.session.completed handler. No "Reply STOP" here;
+  // that's only meaningful on messages sent to a customer's own number.
+  owner_new_booking: "New booking: {{student_name}} just paid for {{product_name}}. {{details}}",
 };
 
 /**
