@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -150,7 +151,12 @@ export default async function InstructorSchedulePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-heading text-lg font-semibold text-wcmt-navy">Available Dates</h2>
+        <div>
+          <h2 className="font-heading text-lg font-semibold text-wcmt-navy">Available Dates</h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Click a date to see who&apos;s booked into it — names, contact details and readiness.
+          </p>
+        </div>
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-200 text-slate-500">
@@ -166,11 +172,23 @@ export default async function InstructorSchedulePage() {
             <tbody>
               {slots.map((slot) => (
                 <tr key={slot.id} className="border-b border-slate-100">
-                  <td className="px-4 py-3 font-medium text-wcmt-navy">{slot.assessment_date}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link
+                      href={`/instructor/schedule/${slot.id}`}
+                      className="text-wcmt-navy underline decoration-dotted hover:text-wcmt-orange"
+                    >
+                      {slot.assessment_date}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3">{slot.assessment_time}</td>
                   <td className="px-4 py-3">{slot.assessment_locations?.name ?? "—"}</td>
                   <td className="px-4 py-3">
-                    {slot.booked_count} / {slot.capacity}
+                    <Link
+                      href={`/instructor/schedule/${slot.id}`}
+                      className="hover:text-wcmt-orange hover:underline"
+                    >
+                      {slot.booked_count} / {slot.capacity}
+                    </Link>
                   </td>
                   <td className="px-4 py-3">{slot.active ? "Open" : "Closed"}</td>
                   <td className="px-4 py-3 text-right">
