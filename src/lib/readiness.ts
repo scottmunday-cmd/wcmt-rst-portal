@@ -2,6 +2,16 @@
  * Readiness score, matching the weighting from the planning conversation:
  * Module Completion 40% + Quiz Scores 30% + Mock Exams 20% + Practical
  * Preparation 10%. Each input is a 0-100 value; the result is 0-100.
+ *
+ * Found 22 September 2026: this function was never actually called
+ * anywhere — students.readiness_score sat at its default of 0 for every
+ * student regardless of real progress. The actual score now comes from
+ * fn_calculate_readiness_score() in the database (see
+ * supabase/migrations/0014_readiness_score_calculation.sql), kept in sync
+ * automatically by a trigger on student_progress/mock_exams — students,
+ * dashboard/page.tsx just reads the stored column. This client-side copy
+ * of the formula is unused now; keep the weights identical to the SQL
+ * version above if either one ever changes, so the two don't drift.
  */
 export interface ReadinessInputs {
   moduleCompletionPercent: number;
