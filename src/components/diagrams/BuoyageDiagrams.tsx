@@ -47,11 +47,21 @@ function LightRhythmBar({
   color = "#0B2545",
   bg = "#FFFFFF",
   pattern,
+  shape = "rect",
 }: {
   label: string;
   color?: string;
   bg?: string;
   pattern: LightSeg[];
+  // Found 24 September 2026 (Scott, after a student's exam question on
+  // this): quick/group flashing lights — cardinals and the isolated
+  // danger mark — are actually drawn as a triangular spike per flash on
+  // the real light-characteristic diagrams these questions come from, not
+  // a flat-topped block. A plain "Flashing" light (lateral/special marks)
+  // and the steady rhythms (isophase/occulting/long flash on the safe
+  // water mark) stay rectangular — only quick/group flashing gets the
+  // triangle treatment. Callers opt in per-light via `shape`.
+  shape?: "rect" | "triangle";
 }) {
   const total = pattern.reduce((s, p) => s + p.w, 0);
   let x = 0;
@@ -65,9 +75,21 @@ function LightRhythmBar({
       >
         <rect x="0" y="0" width={total} height="12" fill={bg} stroke="#cbd5e1" strokeWidth="0.5" />
         {pattern.map((seg, i) => {
-          const rect = seg.on ? <rect key={i} x={x} y="0" width={seg.w} height="12" fill={color} /> : null;
+          if (!seg.on) {
+            x += seg.w;
+            return null;
+          }
+          const startX = x;
           x += seg.w;
-          return rect;
+          return shape === "triangle" ? (
+            <polygon
+              key={i}
+              points={`${startX},12 ${startX + seg.w / 2},0 ${startX + seg.w},12`}
+              fill={color}
+            />
+          ) : (
+            <rect key={i} x={startX} y="0" width={seg.w} height="12" fill={color} />
+          );
         })}
       </svg>
       <p className="text-[9px] font-medium leading-tight text-slate-500">{label}</p>
@@ -83,7 +105,7 @@ function MarkCard({
 }: {
   label: string;
   sub: string;
-  lights?: { label: string; color?: string; bg?: string; pattern: LightSeg[] }[];
+  lights?: { label: string; color?: string; bg?: string; pattern: LightSeg[]; shape?: "rect" | "triangle" }[];
   children: React.ReactNode;
 }) {
   return (
@@ -98,7 +120,7 @@ function MarkCard({
           <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
           <div className="flex w-full flex-col gap-1.5">
             {lights.map((l, i) => (
-              <LightRhythmBar key={i} label={l.label} color={l.color} bg={l.bg} pattern={l.pattern} />
+              <LightRhythmBar key={i} label={l.label} color={l.color} bg={l.bg} pattern={l.pattern} shape={l.shape} />
             ))}
           </div>
         </div>
@@ -148,7 +170,7 @@ export function IsolatedDangerMarkDiagram() {
       label="Isolated danger mark"
       sub="Black with a red band. Two black spheres on top — pass well clear on any side."
       lights={[
-        { label: "White — Group Flashing (2). Memory jog: two flashes for two spheres", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.groupFlash2 },
+        { label: "White — Group Flashing (2). Memory jog: two flashes for two spheres", color: "#FFFFFF", bg: "#000000", pattern: RHYTHMS.groupFlash2, shape: "triangle" },
       ]}
     >
       <rect x="20" y="35" width="20" height="20" fill="#0B2545" />
@@ -290,7 +312,13 @@ export function CardinalMarksDiagram() {
           <p className="text-[11px] leading-snug text-slate-500">{CARDINAL_COPY[dir]}</p>
           <div className="mt-1 flex w-full flex-col items-center gap-1 border-t border-slate-200 pt-2">
             <p className="text-[10px] font-semibold uppercase tracking-wide text-wcmt-coastal">Light</p>
-            <LightRhythmBar label={CARDINAL_LIGHT[dir].label} color="#FFFFFF" bg="#000000" pattern={CARDINAL_LIGHT[dir].pattern} />
+            <LightRhythmBar
+              label={CARDINAL_LIGHT[dir].label}
+              color="#FFFFFF"
+              bg="#000000"
+              pattern={CARDINAL_LIGHT[dir].pattern}
+              shape="triangle"
+            />
           </div>
         </div>
       ))}
