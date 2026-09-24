@@ -344,7 +344,7 @@ It''s designed to give you a realistic feel for the real thing — including the
   insert into questions (module_id, question_text, answer_a, answer_b, answer_c, answer_d, correct_answer, difficulty) values (v_module_id, 'If a vessel fills with water and has basic flotation, it will:', 'Sink straight away.', 'Have enough flotation to prevent the vessel and its maximum load from sinking.', 'Take three hours to sink.', 'Stay well above the water.', 'b', 'normal');
   select id into v_module_id from modules where sort_order = 8;
   if v_module_id is null then raise exception 'module sort_order % not found', 8; end if;
-  insert into questions (module_id, question_text, answer_a, answer_b, answer_c, answer_d, correct_answer, difficulty) values (v_module_id, 'In the southern hemisphere, a low pressure system rotates in which direction?', 'Clockwise.', 'Anti-clockwise.', 'Always north.', 'Vertically.', 'b', 'hard');
+  insert into questions (module_id, question_text, answer_a, answer_b, answer_c, answer_d, correct_answer, difficulty) values (v_module_id, 'In the southern hemisphere, a low pressure system rotates in which direction?', 'Clockwise.', 'Anti-clockwise.', 'Always north.', 'Vertically.', 'a', 'hard');
   select id into v_module_id from modules where sort_order = 8;
   if v_module_id is null then raise exception 'module sort_order % not found', 8; end if;
   insert into questions (module_id, question_text, answer_a, answer_b, answer_c, answer_d, correct_answer, difficulty) values (v_module_id, 'Which of the following can be a sign of approaching bad weather?', 'A wind shift.', 'An increase in swell.', 'Cloud building up.', 'All of the above.', 'd', 'easy');

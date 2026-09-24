@@ -8,7 +8,13 @@
 // mark's light characteristic — own artwork, own colour convention (a solid
 // block = the light is on), not copied from any chart or workbook diagram.
 
-type LightSeg = { on: boolean; w: number };
+// `shape` on an individual segment overrides the bar-level default set on
+// LightRhythmBar — needed for the South cardinal, whose rhythm ends with a
+// long flash rather than a quick flash (see groupFlash6PlusLong below):
+// found 24 September 2026, same student exam question as the
+// triangle/rectangle change above — a long flash is drawn as a rectangle
+// even on an otherwise all-triangle quick-flashing rhythm.
+type LightSeg = { on: boolean; w: number; shape?: "rect" | "triangle" };
 
 // n short flashes evenly spaced with a short gap after each (used for a
 // continuous quick/very-quick rhythm, e.g. the North cardinal's light).
@@ -35,7 +41,11 @@ const RHYTHMS = {
   quickContinuous: quick(7),
   groupFlash2: group(2),
   groupFlash3: group(3),
-  groupFlash6PlusLong: [...group(6, 3), { on: true, w: 6 }, { on: false, w: 10 }] as LightSeg[],
+  groupFlash6PlusLong: [
+    ...group(6, 3),
+    { on: true, w: 6, shape: "rect" },
+    { on: false, w: 10 },
+  ] as LightSeg[],
   groupFlash9: group(9),
   isophase: [{ on: true, w: 7 }, { on: false, w: 7 }] as LightSeg[],
   occulting: [{ on: true, w: 10 }, { on: false, w: 3 }] as LightSeg[],
@@ -81,7 +91,8 @@ function LightRhythmBar({
           }
           const startX = x;
           x += seg.w;
-          return shape === "triangle" ? (
+          const segShape = seg.shape ?? shape;
+          return segShape === "triangle" ? (
             <polygon
               key={i}
               points={`${startX},12 ${startX + seg.w / 2},0 ${startX + seg.w},12`}

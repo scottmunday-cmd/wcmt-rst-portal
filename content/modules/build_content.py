@@ -802,7 +802,7 @@ add_questions(8, [
  "Stay well above the water.",
  "b", "normal"),
 ("In the southern hemisphere, a low pressure system rotates in which direction?",
- "Clockwise.", "Anti-clockwise.", "Always north.", "Vertically.", "b", "hard"),
+ "Clockwise.", "Anti-clockwise.", "Always north.", "Vertically.", "a", "hard"),
 ("Which of the following can be a sign of approaching bad weather?",
  "A wind shift.", "An increase in swell.", "Cloud building up.", "All of the above.", "d", "easy"),
 ])
