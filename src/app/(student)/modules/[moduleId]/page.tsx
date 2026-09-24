@@ -25,7 +25,7 @@ import {
   RadioUrgencyDiagram,
 } from "@/components/diagrams/SafetyEquipmentDiagrams";
 import { SafetyRequirementsTable } from "@/components/diagrams/SafetyRequirementsTable";
-import { LifejacketPhotoRow, FlaresPhotoRow, FireExtinguisherPhoto } from "@/components/diagrams/EquipmentPhotos";
+import { LifejacketTypesPhoto, SafetyGearPhotoRow, FlaresPhotoRow } from "@/components/diagrams/EquipmentPhotos";
 import { FuelPlanPieChart, StabilityDiagram } from "@/components/diagrams/SafeOperationsDiagrams";
 import { CapsizeResponseDiagram, HelpHuddleDiagram } from "@/components/diagrams/EmergencyDiagrams";
 import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagram";
@@ -56,6 +56,22 @@ function renderInline(text: string): React.ReactNode[] {
 // from every other module's bank instead, so it gets the dedicated
 // PracticeExams component rather than the per-module ModuleQuiz.
 const MOCK_ASSESSMENT_SORT_ORDER = 11;
+
+// The Practical Assessment module (sort_order 10) is overview lessons only
+// — "assessed on-water", per content/modules/build_content.py — and has no
+// quiz questions in questions.csv at all. That meant ModuleQuiz just
+// rendered "No practice questions for this module yet." and, since it
+// never calls saveProgress() with zero questions, a student could open and
+// read this module as many times as they liked and it would never count
+// toward their readiness score. Found 22 September 2026 (Scott: Jack
+// Gibbings had real progress that wasn't showing up as readiness). Fixed
+// by marking this specific module "viewed" the moment its page loads —
+// see the upsert below — which both contributes to the module-completion
+// 40% of the readiness score AND satisfies the practical-preparation 10%
+// (see fn_calculate_readiness_score in
+// supabase/migrations/0015_practical_preparation_readiness.sql, which
+// checks for exactly this module/row).
+const PRACTICAL_ASSESSMENT_SORT_ORDER = 10;
 
 // Diagrams live in code (not the lessons.content text column) so they can be
 // original hand-built SVG/CSS rather than images copied from the workbook or
@@ -127,8 +143,8 @@ function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
       <div className="space-y-3">
         <SafetyRequirementsTable />
         <LifejacketLevelsDiagram />
-        <LifejacketPhotoRow />
-        <FireExtinguisherPhoto />
+        <LifejacketTypesPhoto />
+        <SafetyGearPhotoRow />
       </div>
     );
   }
@@ -207,6 +223,30 @@ export default async function ModuleDetailPage({
 
   const numericModuleId = module_?.id ?? Number(moduleId);
 
+  // Mark the Practical Assessment module "viewed" — best-effort and
+  // deliberately silent on failure (e.g. an admin/instructor previewing
+  // this page has no students row to write against) since it should never
+  // block the page itself from rendering. Upserting on every visit is
+  // harmless — it's the same completed:true/percentage_complete:100 every
+  // time, matching the onConflict pattern ModuleQuiz.tsx already uses.
+  if (!loadError && module_?.sort_order === PRACTICAL_ASSESSMENT_SORT_ORDER) {
+    try {
+      const { data: student } = await supabase
+        .from("students")
+        .select("id")
+        .eq("profile_id", userData.user.id)
+        .maybeSingle<{ id: string }>();
+      if (student) {
+        await supabase.from("student_progress").upsert(
+          { student_id: student.id, module_id: numericModuleId, completed: true, percentage_complete: 100 },
+          { onConflict: "student_id,module_id" }
+        );
+      }
+    } catch {
+      // Best-effort only — see comment above.
+    }
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="font-heading text-2xl font-bold text-wcmt-navy">
@@ -266,8 +306,20 @@ export default async function ModuleDetailPage({
           <PracticeExams />
         </div>
       )}
+      {!loadError && module_?.sort_order === PRACTICAL_ASSESSMENT_SORT_ORDER && (
+        <Card className="mt-4 border-wcmt-green/30 bg-green-50">
+          <p className="text-sm font-medium text-wcmt-green">
+            ✓ Reviewed — this counts toward your readiness score.
+          </p>
+          <p className="mt-1 text-sm text-slate-600">
+            There&apos;s no online quiz for this one — the practical is assessed on the water with
+            your instructor, not here. Reading through this overview is what counts.
+          </p>
+        </Card>
+      )}
       {!loadError &&
         module_?.sort_order !== MOCK_ASSESSMENT_SORT_ORDER &&
+        module_?.sort_order !== PRACTICAL_ASSESSMENT_SORT_ORDER &&
         !Number.isNaN(numericModuleId) && (
           <div className="space-y-3 pt-4">
             <h2 className="font-heading text-xl font-bold text-wcmt-navy">Practice Quiz</h2>
