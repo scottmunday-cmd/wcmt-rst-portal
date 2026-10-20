@@ -4,10 +4,10 @@ import Image from "next/image";
 // alongside the original illustrations used elsewhere. Most are sourced
 // from Wikimedia Commons under Creative Commons licences that permit
 // reuse — each of those is attributed here as its licence requires. The
-// fire extinguisher, EPIRB and lifejacket-types photos are the exception:
-// Scott supplied these directly (24 September 2026) rather than sourcing
-// them from Commons, so they carry no licence to credit — see the note on
-// `credit` below. None of these come from the WA workbook (which
+// fire extinguisher, EPIRB and lifejacket photos are the exception: Scott
+// supplied these directly (24 September and 20 October 2026) rather than
+// sourcing them from Commons, so they carry no licence to credit — see the
+// note on `credit` below. None of these come from the WA workbook (which
 // restricts commercial reuse of its own photos).
 type Credit = { title: string; author: string; license: string; url: string };
 
@@ -18,6 +18,7 @@ function Photo({
   height,
   caption,
   credit,
+  fit = "cover",
 }: {
   src: string;
   alt: string;
@@ -26,14 +27,27 @@ function Photo({
   caption: string;
   // Optional: the Wikimedia-sourced photos in this file all need the
   // licence/attribution line below, but the photos Scott supplied directly
-  // (fire extinguisher, EPIRB, lifejacket-types — see the file header)
+  // (fire extinguisher, EPIRB, lifejacket photos — see the file header)
   // don't come with a Commons licence to credit, so they omit this
   // entirely.
   credit?: Credit;
+  // "cover" (default) fills a short fixed-height box and crops — fine for
+  // landscape photos. "contain" is for tall/portrait photos (the fire
+  // extinguisher, EPIRB and the two real lifejacket photos): it shows the
+  // whole photo inside a taller box instead of cropping the top and
+  // bottom off, at the cost of a little letterboxing on some aspect
+  // ratios.
+  fit?: "cover" | "contain";
 }) {
   return (
     <figure className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-      <Image src={src} alt={alt} width={width} height={height} className="h-40 w-full object-cover" />
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        className={fit === "contain" ? "aspect-[3/4] w-full object-contain p-3" : "h-40 w-full object-cover"}
+      />
       <figcaption className="p-2 text-center">
         <p className="text-[11px] font-semibold text-wcmt-navy">{caption}</p>
         {credit && (
@@ -57,6 +71,11 @@ function Photo({
 // photo moved in here alongside the EPIRB instead. Kept the name
 // SafetyGearPhotoRow (rather than LifejacketPhotoRow) since it's no longer
 // lifejacket-specific.
+//
+// Both photos use fit="contain" (added 20 October 2026, at Scott's
+// request): they're tall, narrow portrait shots, and the previous fixed
+// h-40 + object-cover box was cropping most of each photo away, leaving
+// only a cramped middle band visible.
 export function SafetyGearPhotoRow() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -66,6 +85,7 @@ export function SafetyGearPhotoRow() {
         width={504}
         height={607}
         caption="A dry chemical fire extinguisher — part of the recommended additional gear, with a bracket for secure mounting"
+        fit="contain"
       />
       <Photo
         src="/equipment/epirb.jpg"
@@ -73,25 +93,41 @@ export function SafetyGearPhotoRow() {
         width={421}
         height={588}
         caption="An EPIRB — lift the antenna and press the button to activate"
+        fit="contain"
       />
     </div>
   );
 }
 
-// Wide four-up illustration comparing lifejacket types (foam vest,
-// inflatable collar, high-vis foam vest, inflatable harness) — replaces
-// the single generic lifejacket photo that used to live in the row above.
-// Scott supplied this image directly, so — like the fire extinguisher and
-// EPIRB photos — it carries no Commons licence to credit.
+// Replaced 20 October 2026 at Scott's request: the previous wide four-up
+// illustration (foam vest, inflatable collar, high-vis foam vest,
+// inflatable harness) is gone. The yellow foam vest from that graphic now
+// illustrates the "Level 50 / 50S" card in LifejacketLevelsDiagram
+// instead (see SafetyEquipmentDiagrams.tsx); the other three illustrated
+// types are dropped entirely, replaced here with two real photos Scott
+// supplied of lifejackets he actually carries. Kept the export name
+// LifejacketTypesPhoto so the import in the module page didn't need
+// touching.
 export function LifejacketTypesPhoto() {
   return (
-    <Photo
-      src="/equipment/lifejacket-types.jpg"
-      alt="Four types of lifejacket: a foam vest, an inflatable collar, a high-visibility foam vest, and an inflatable harness"
-      width={1208}
-      height={351}
-      caption="Types of life jackets on registrable vessels"
-    />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <Photo
+        src="/equipment/lifejacket-inflatable.jpg"
+        alt="A grey automatic inflatable lifejacket, ISO 150N rated"
+        width={480}
+        height={640}
+        caption="An automatic inflatable lifejacket (ISO 150N) — compact to wear, and inflates on its own if you go in the water"
+        fit="contain"
+      />
+      <Photo
+        src="/equipment/lifejacket-solas.jpg"
+        alt="An orange SOLAS-approved foam lifejacket"
+        width={407}
+        height={578}
+        caption="A SOLAS-approved foam lifejacket, the type carried on larger vessels"
+        fit="contain"
+      />
+    </div>
   );
 }
 

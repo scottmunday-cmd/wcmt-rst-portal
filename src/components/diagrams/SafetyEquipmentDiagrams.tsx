@@ -1,6 +1,8 @@
 // Original diagrams for the Safety Equipment module — not traced from any
 // workbook, exam paper or chart.
 
+import Image from "next/image";
+
 function VestIcon({ fill }: { fill: string }) {
   return (
     <svg viewBox="0 0 40 50" className="h-14 w-11" aria-hidden="true">
@@ -10,6 +12,10 @@ function VestIcon({ fill }: { fill: string }) {
   );
 }
 
+// Updated 20 October 2026 at Scott's request: the Level 50 / 50S card now
+// shows a real photo of a yellow foam vest (cropped from the old
+// lifejacket-types illustration) instead of the little blue vest icon —
+// the Level 100+ card keeps its icon unchanged.
 export function LifejacketLevelsDiagram() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -24,7 +30,13 @@ export function LifejacketLevelsDiagram() {
         </div>
       </div>
       <div className="flex items-center gap-3 rounded-lg bg-wcmt-bg p-3">
-        <VestIcon fill="#4EA5D9" />
+        <Image
+          src="/equipment/lifejacket-yellow.jpg"
+          alt="A yellow foam lifejacket"
+          width={178}
+          height={278}
+          className="h-14 w-9 shrink-0 rounded object-cover"
+        />
         <div>
           <p className="text-xs font-semibold text-wcmt-navy">Level 50 / 50S</p>
           <p className="text-[11px] leading-snug text-slate-500">
