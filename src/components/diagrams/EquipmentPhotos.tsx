@@ -36,17 +36,24 @@ function Photo({
   // extinguisher, EPIRB and the two real lifejacket photos): it shows the
   // whole photo inside a taller box instead of cropping the top and
   // bottom off, at the cost of a little letterboxing on some aspect
-  // ratios.
+  // ratios. Capped at a smaller max-width (added 20 October 2026, at
+  // Scott's request) so these taller cards don't stretch the page —
+  // height scales down along with the capped width.
   fit?: "cover" | "contain";
 }) {
   return (
-    <figure className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <figure
+      className={
+        "overflow-hidden rounded-lg border border-slate-200 bg-white" +
+        (fit === "contain" ? " mx-auto w-full max-w-[160px]" : "")
+      }
+    >
       <Image
         src={src}
         alt={alt}
         width={width}
         height={height}
-        className={fit === "contain" ? "aspect-[3/4] w-full object-contain p-3" : "h-40 w-full object-cover"}
+        className={fit === "contain" ? "aspect-[3/4] w-full object-contain p-2" : "h-40 w-full object-cover"}
       />
       <figcaption className="p-2 text-center">
         <p className="text-[11px] font-semibold text-wcmt-navy">{caption}</p>
