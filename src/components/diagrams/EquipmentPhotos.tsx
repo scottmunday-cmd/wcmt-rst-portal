@@ -71,53 +71,21 @@ function Photo({
   );
 }
 
-// Requested by Scott 24 September 2026: the single-lifejacket photo that
-// used to sit here moved out to its own full-width spot below
-// (LifejacketTypesPhoto) — its replacement, a wide four-up comparison
-// image, doesn't suit a half-width grid slot — and the fire extinguisher
-// photo moved in here alongside the EPIRB instead. Kept the name
-// SafetyGearPhotoRow (rather than LifejacketPhotoRow) since it's no longer
-// lifejacket-specific.
-//
-// Both photos use fit="contain" (added 20 October 2026, at Scott's
-// request): they're tall, narrow portrait shots, and the previous fixed
-// h-40 + object-cover box was cropping most of each photo away, leaving
-// only a cramped middle band visible.
+// Combined into a single row 20 October 2026 at Scott's request — the two
+// real lifejacket photos on the left, the fire extinguisher and EPIRB on
+// the right — replacing what used to be two separate stacked rows
+// (LifejacketTypesPhoto above SafetyGearPhotoRow). Kept the export name
+// SafetyGearPhotoRow so the module page only needed its second call
+// (LifejacketTypesPhoto) removed, not re-pointed. All four use
+// fit="contain" (added 20 October 2026): they're tall, narrow portrait
+// shots, and the previous fixed h-40 + object-cover box was cropping most
+// of each photo away, leaving only a cramped middle band visible. On
+// narrow screens this still falls back to two rows of two (lifejackets,
+// then gear), rather than squeezing four photos across a phone-width
+// screen.
 export function SafetyGearPhotoRow() {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <Photo
-        src="/equipment/fire-extinguisher.jpg"
-        alt="A dry chemical fire extinguisher with mounting bracket"
-        width={504}
-        height={607}
-        caption="A dry chemical fire extinguisher — part of the recommended additional gear, with a bracket for secure mounting"
-        fit="contain"
-      />
-      <Photo
-        src="/equipment/epirb.jpg"
-        alt="An EPIRB distress beacon"
-        width={421}
-        height={588}
-        caption="An EPIRB — lift the antenna and press the button to activate"
-        fit="contain"
-      />
-    </div>
-  );
-}
-
-// Replaced 20 October 2026 at Scott's request: the previous wide four-up
-// illustration (foam vest, inflatable collar, high-vis foam vest,
-// inflatable harness) is gone. The yellow foam vest from that graphic now
-// illustrates the "Level 50 / 50S" card in LifejacketLevelsDiagram
-// instead (see SafetyEquipmentDiagrams.tsx); the other three illustrated
-// types are dropped entirely, replaced here with two real photos Scott
-// supplied of lifejackets he actually carries. Kept the export name
-// LifejacketTypesPhoto so the import in the module page didn't need
-// touching.
-export function LifejacketTypesPhoto() {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <Photo
         src="/equipment/lifejacket-inflatable.jpg"
         alt="A grey automatic inflatable lifejacket, ISO 150N rated"
@@ -132,6 +100,22 @@ export function LifejacketTypesPhoto() {
         width={407}
         height={578}
         caption="A SOLAS-approved foam lifejacket, the type carried on larger vessels"
+        fit="contain"
+      />
+      <Photo
+        src="/equipment/fire-extinguisher.jpg"
+        alt="A dry chemical fire extinguisher with mounting bracket"
+        width={504}
+        height={607}
+        caption="A dry chemical fire extinguisher — part of the recommended additional gear, with a bracket for secure mounting"
+        fit="contain"
+      />
+      <Photo
+        src="/equipment/epirb.jpg"
+        alt="An EPIRB distress beacon"
+        width={421}
+        height={588}
+        caption="An EPIRB — lift the antenna and press the button to activate"
         fit="contain"
       />
     </div>
