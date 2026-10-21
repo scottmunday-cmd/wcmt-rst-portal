@@ -174,21 +174,18 @@ function ModuleIcon({ moduleSortOrder }: { moduleSortOrder: number }) {
           </g>
         </g>
       );
-    case 6: // Maintenance — a crossed wrench and hammer, single-colour silhouette
-    // style like the reference image Scott sent 21 October 2026. Redrawn
-    // larger with a bolder, open-stroke wrench jaw after the first attempt
-    // (a filled hook shape, both tools pivoting close together) read as an
-    // abstract blob at actual on-page size rather than recognisable tools.
+    case 6: // Maintenance — a single wrench. The first two attempts (a crossed
+    // wrench-and-hammer pair, built from basic shapes) both read as an
+    // abstract blob at actual on-page icon size, so this drops back to one
+    // tool using a standard, instantly-recognisable wrench silhouette
+    // (the common "spanner" glyph shape), scaled up for legibility.
+    // Simplified to a single tool 21 October 2026 at Scott's request.
       return (
-        <g transform="translate(308,53)">
-          <g transform="rotate(-35)">
-            <rect x="-2.5" y="-2" width="5" height="26" rx="2" fill="#334155" />
-            <path d="M-8 -8 a8 8 0 1 1 16 0" fill="none" stroke="#334155" strokeWidth="5" strokeLinecap="round" />
-          </g>
-          <g transform="rotate(55)">
-            <rect x="-2.5" y="-4" width="5" height="26" rx="2" fill="#334155" />
-            <rect x="-10" y="-14" width="20" height="10" rx="2.5" fill="#334155" />
-          </g>
+        <g transform="translate(314,55) scale(1.55) translate(-12,-12)">
+          <path
+            d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"
+            fill="#334155"
+          />
         </g>
       );
     case 7: // Safety Equipment — a life ring
