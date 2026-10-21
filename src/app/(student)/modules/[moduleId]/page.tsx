@@ -94,7 +94,12 @@ function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
   if (moduleSortOrder === 2 && lessonSortOrder === 1) {
     return <BloodAlcoholGauge />;
   }
-  if (moduleSortOrder === 2 && lessonSortOrder === 2) {
+  // Lesson sort_order 3 is "Speed limits and staying clear of others" in the
+  // live lessons table — the lessons were reordered there at some point
+  // (sort_order 2 is now "Vessel Registration" instead), which had left the
+  // 8-knot speed-zone diagram rendering under Registration instead of the
+  // Speed limits lesson. Repointed 21 October 2026 at Scott's request.
+  if (moduleSortOrder === 2 && lessonSortOrder === 3) {
     return <SpeedZoneDiagram />;
   }
   // Module 3 — Collision Avoidance
