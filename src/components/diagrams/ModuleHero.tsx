@@ -92,25 +92,28 @@ function Hull({ x = 150 }: { x?: number }) {
 // Per-module icon motifs, keyed by module sort_order (1-11).
 function ModuleIcon({ moduleSortOrder }: { moduleSortOrder: number }) {
   switch (moduleSortOrder) {
-    case 1: // Introduction — a certificate, and the ticket card you're working toward.
-    // Replaced the ship's wheel (21 October 2026, at Scott's request — read as
-    // "TV-like") with a small rendition of the card itself: a blue header
-    // band over a white body with two placeholder text lines, echoing the WA
-    // Recreational Skipper's Ticket without reproducing its actual artwork,
-    // wording or government crest.
+    case 1: // Introduction — a single "certificate card with a tick" icon. Replaced
+    // the ribbon-plus-ticket-card pairing (21 October 2026, at Scott's
+    // request) with one combined graphic: a card with a checkmark badge
+    // overlapping its top-left corner, echoing the WA Recreational
+    // Skipper's Ticket without reproducing its actual artwork, wording or
+    // government crest.
       return (
-        <>
-          <g transform="translate(320,58)">
-            <rect x="-14" y="-16" width="28" height="20" rx="2" fill="white" stroke="#F26B38" strokeWidth="2" />
-            <path d="M-6 4 L-10 16 L0 10 L10 16 L6 4" fill="#F26B38" />
-          </g>
-          <g transform="translate(316,32)">
-            <rect x="-10" y="-8" width="20" height="16" rx="2" fill="white" stroke="#134074" strokeWidth="1.5" />
-            <path d="M-10 -6.5 a2 2 0 0 1 2 -1.5 h16 a2 2 0 0 1 2 1.5 v3.5 h-20 Z" fill="#134074" />
-            <line x1="-6" y1="2" x2="6" y2="2" stroke="#CBD5E1" strokeWidth="1.3" />
-            <line x1="-6" y1="5.5" x2="2" y2="5.5" stroke="#CBD5E1" strokeWidth="1.3" />
-          </g>
-        </>
+        <g transform="translate(312,55)">
+          <rect x="-16" y="-13" width="32" height="26" rx="3" fill="white" stroke="#134074" strokeWidth="2" />
+          <line x1="2" y1="-5" x2="13" y2="-5" stroke="#CBD5E1" strokeWidth="1.6" />
+          <line x1="2" y1="0" x2="13" y2="0" stroke="#CBD5E1" strokeWidth="1.6" />
+          <line x1="2" y1="5" x2="9" y2="5" stroke="#CBD5E1" strokeWidth="1.6" />
+          <circle cx="-9" cy="-7" r="9" fill="white" stroke="#134074" strokeWidth="2.2" />
+          <path
+            d="M-13 -7 L-10.5 -4 L-5 -10.5"
+            fill="none"
+            stroke="#134074"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
       );
     case 2: // Rules & Regulations — the 8-knot speed-limit roundel this module covers
       return (
@@ -171,17 +174,17 @@ function ModuleIcon({ moduleSortOrder }: { moduleSortOrder: number }) {
           </g>
         </g>
       );
-    case 6: // Maintenance — a wrench and a hammer (swapped from a wrench + oil can,
-    // 21 October 2026 at Scott's request)
+    case 6: // Maintenance — a crossed wrench and hammer, single-colour silhouette
+    // style like the reference image Scott sent 21 October 2026 (replacing
+    // the earlier side-by-side wrench + brown-handled hammer).
       return (
-        <g transform="translate(303,55)">
-          <path
-            d="M-10 -10 a6 6 0 1 1 8 8 L10 10 L6 14 L-10 -2 Z"
-            fill="#334155"
-          />
-          <g transform="translate(25,-2) rotate(35)">
-            <rect x="-2.5" y="-2" width="5" height="20" rx="1.5" fill="#8B5E3C" />
-            <rect x="-9" y="-12" width="18" height="10" rx="2" fill="#334155" />
+        <g transform="translate(310,55)">
+          <g transform="rotate(-40)">
+            <path d="M-10 -10 a6 6 0 1 1 8 8 L10 10 L6 14 L-10 -2 Z" fill="#334155" />
+          </g>
+          <g transform="rotate(50)">
+            <rect x="-2.5" y="-6" width="5" height="22" rx="1.5" fill="#334155" />
+            <path d="M-9 -16 H9 V-8 H-9 Z M5 -16 H9 V-11 H7 Z" fill="#334155" fillRule="evenodd" />
           </g>
         </g>
       );
