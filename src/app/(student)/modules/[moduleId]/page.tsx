@@ -26,9 +26,16 @@ import {
 } from "@/components/diagrams/SafetyEquipmentDiagrams";
 import { SafetyRequirementsTable } from "@/components/diagrams/SafetyRequirementsTable";
 import { SafetyGearPhotoRow, FlaresPhotoRow } from "@/components/diagrams/EquipmentPhotos";
-import { FuelPlanPieChart, StabilityDiagram } from "@/components/diagrams/SafeOperationsDiagrams";
+import {
+  FuelPlanPieChart,
+  StabilityDiagram,
+  ChartPlottingPhoto,
+} from "@/components/diagrams/SafeOperationsDiagrams";
 import { CapsizeResponseDiagram, HelpHuddleDiagram } from "@/components/diagrams/EmergencyDiagrams";
-import { PracticalTasksDiagram } from "@/components/diagrams/PracticalTasksDiagram";
+import {
+  PracticalTasksDiagram,
+  AssessmentPassPhotos,
+} from "@/components/diagrams/PracticalTasksDiagram";
 import { ModuleHero } from "@/components/diagrams/ModuleHero";
 import type { Lesson, Module } from "@/types/database";
 
@@ -165,7 +172,12 @@ function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
   }
   // Module 8 — Safe Operations
   if (moduleSortOrder === 8 && lessonSortOrder === 1) {
-    return <FuelPlanPieChart />;
+    return (
+      <div className="space-y-3">
+        <FuelPlanPieChart />
+        <ChartPlottingPhoto />
+      </div>
+    );
   }
   if (moduleSortOrder === 8 && lessonSortOrder === 2) {
     return <StabilityDiagram />;
@@ -178,6 +190,9 @@ function lessonDiagram(moduleSortOrder: number, lessonSortOrder: number) {
     return <HelpHuddleDiagram />;
   }
   // Module 10 — Practical Assessment
+  if (moduleSortOrder === 10 && lessonSortOrder === 1) {
+    return <AssessmentPassPhotos />;
+  }
   if (moduleSortOrder === 10 && lessonSortOrder === 2) {
     return <PracticalTasksDiagram />;
   }

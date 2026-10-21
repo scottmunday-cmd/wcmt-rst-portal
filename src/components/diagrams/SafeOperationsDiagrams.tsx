@@ -1,6 +1,31 @@
 // Original diagrams for the Safe Operations module — not traced from any
 // workbook, exam paper or chart.
 
+import Image from "next/image";
+
+// Photo Scott supplied directly (21 October 2026) rather than sourcing from
+// Commons, so — same as the equipment photos in EquipmentPhotos.tsx — it
+// carries no licence to credit.
+export function ChartPlottingPhoto() {
+  return (
+    <figure className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+      <Image
+        src="/operations/chart-plotting.jpg"
+        alt="A paper nautical chart with parallel rulers, a compass rose and dividers, mid-way through plotting a course"
+        width={1100}
+        height={733}
+        className="h-40 w-full object-cover"
+      />
+      <figcaption className="p-2 text-center">
+        <p className="text-[11px] font-semibold text-wcmt-navy">
+          Plotting a course on a paper chart — worth knowing even with GPS on board, for when the
+          electronics let you down
+        </p>
+      </figcaption>
+    </figure>
+  );
+}
+
 export function FuelPlanPieChart() {
   // Conic-gradient wedge: 25% out, 25% return, 50% reserve.
   return (
