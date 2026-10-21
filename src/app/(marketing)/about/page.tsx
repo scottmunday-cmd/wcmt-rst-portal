@@ -1,4 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Meet Scotty, West Coast Marine Training's primary trainer — a Marine Master with 25+ years' experience, training WA Recreational Skipper's Ticket students and BHP tug masters across the west coast.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
@@ -34,6 +43,17 @@ export default function AboutPage() {
             height={227}
             className="w-full max-w-md rounded-xl border border-slate-200 shadow-sm"
           />
+          <p>
+            Ready to get started? You can{" "}
+            <Link href="/register" className="font-medium text-wcmt-coastal underline">
+              enrol in the online course
+            </Link>{" "}
+            at your own pace, or check our{" "}
+            <Link href="/faq" className="font-medium text-wcmt-coastal underline">
+              frequently asked questions
+            </Link>{" "}
+            first.
+          </p>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { clsx } from "clsx";
+import type { Metadata } from "next";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Logo } from "@/components/Logo";
@@ -6,6 +7,18 @@ import { BuyButton, type BuyButtonLocation } from "@/components/BuyButton";
 import { RequestCallbackForm } from "@/components/RequestCallbackForm";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { AssessmentLocation, Product } from "@/types/database";
+
+const SITE_URL = "https://www.westcoastmarinetraining.com.au";
+
+// Overrides the root layout's generic default title/description with
+// something specific to this page — the root layout's version remains the
+// fallback for any page that doesn't set its own. Added 21 October 2026.
+export const metadata: Metadata = {
+  title: "WA Recreational Skipper's Ticket (RST) Online Course",
+  description:
+    "Get your WA Recreational Skipper's Ticket online. Self-paced theory, in-person practical assessment booking, and lifetime reference library access — serving Two Rocks, Perth's northern suburbs and the WA coast up to Port Hedland.",
+  alternates: { canonical: "/" },
+};
 
 // requires_slot products (currently just the in-person assessment, see
 // 0009_assessment_slot_booking.sql) no longer buy straight off this page —
@@ -58,8 +71,66 @@ export default async function HomePage() {
     }));
   }
 
+  // Structured data, built from the same `products` query above rather
+  // than hand-written, so the prices Google sees here can never drift
+  // from what's actually shown (and charged) on the page. One
+  // EducationalOrganization (so this appears once, not per-page) plus one
+  // Course per active product. Added 21 October 2026 as part of the SEO
+  // pass — see also FaqPage's FAQPage schema.
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "EducationalOrganization",
+        name: "West Coast Marine Training",
+        url: SITE_URL,
+        logo: `${SITE_URL}/logo-full.png`,
+        image: `${SITE_URL}/logo-full.png`,
+        description:
+          "WA Recreational Skipper's Ticket (RST) training — online theory, in-person practical assessment, and private tuition.",
+        telephone: "+61408927905",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Two Rocks",
+          addressRegion: "WA",
+          addressCountry: "AU",
+        },
+        areaServed: [
+          "Two Rocks, WA",
+          "Hillarys, WA",
+          "Perth, WA",
+          "Mandurah, WA",
+          "Port Hedland, WA",
+        ],
+        priceRange: "$$",
+      },
+      ...(products ?? []).map((product) => ({
+        "@type": "Course",
+        name: product.name,
+        description: product.description,
+        provider: {
+          "@type": "Organization",
+          name: "West Coast Marine Training",
+          sameAs: SITE_URL,
+        },
+        offers: {
+          "@type": "Offer",
+          price: (product.price_cents / 100).toFixed(2),
+          priceCurrency: "AUD",
+          availability: "https://schema.org/InStock",
+          url: `${SITE_URL}/#pricing`,
+        },
+      })),
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <section className="bg-gradient-to-b from-wcmt-navy to-wcmt-ocean px-6 py-20 text-white">
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-block rounded-2xl bg-white/95 px-6 py-4 shadow-lg">

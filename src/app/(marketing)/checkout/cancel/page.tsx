@@ -1,8 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/Card";
 import { ButtonLink } from "@/components/ui/Button";
+
+// Transactional, per-order, and gated behind login anyway (see the
+// redirect below) — nothing here is ever worth a search result. Added
+// 21 October 2026 as part of the SEO pass.
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 // Stripe redirects here when a student backs out of Checkout (see
 // cancel_url in src/app/api/checkout/route.ts). This page didn't exist

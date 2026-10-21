@@ -1,3 +1,13 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Frequently Asked Questions",
+  description:
+    "Answers to common questions about WA's Recreational Skipper's Ticket (RST): course access, the practical assessment, certification, and more.",
+  alternates: { canonical: "/faq" },
+};
+
 const FAQS = [
   { q: "Who needs an RST?", a: "Anyone operating most recreational powered vessels in Western Australian waters needs a Recreational Skipper's Ticket. Check Transport WA's website for the exact vessel/situation rules." },
   { q: "Do I need boating experience?", a: "No — the course is designed for complete beginners as well as experienced boaters brushing up before their assessment." },
@@ -7,9 +17,32 @@ const FAQS = [
   { q: "What happens after I pass?", a: "For online studies, you receive your certificate with a QR verification code, and keep lifetime access to the reference library. After passing your actual RST assessment, the instructor will issue you with a temporary RST immediately, then your card will be sent out by DOT after processing." },
 ];
 
+// FAQPage structured data, built from the same FAQS array the page
+// renders, so Google's rich-result copy can never drift from what's
+// actually visible on the page (a mismatch there is the one thing Google
+// explicitly penalises FAQPage markup for). Added 21 October 2026 as part
+// of the SEO pass.
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.a,
+    },
+  })),
+};
+
 export default function FaqPage() {
   return (
     <section className="px-6 py-16">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
+      />
       <div className="mx-auto max-w-3xl">
         <h1 className="font-heading text-3xl font-bold text-wcmt-navy">
           Frequently Asked Questions
@@ -22,6 +55,11 @@ export default function FaqPage() {
             </div>
           ))}
         </dl>
+
+        <p className="mt-8 text-sm text-slate-600">
+          Ready to enrol? <Link href="/register" className="font-medium text-wcmt-coastal underline">Start the online course</Link>, or read more{" "}
+          <Link href="/about" className="font-medium text-wcmt-coastal underline">about West Coast Marine Training</Link>.
+        </p>
 
         {/*
           Added 18 September 2026, per Scott: he wants a way to be reached

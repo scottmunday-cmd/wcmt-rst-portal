@@ -57,6 +57,35 @@ external process for staff's own visibility.
    ```
    then open http://localhost:3000.
 
+## Adding new tables to the `public` schema
+
+From 30 October 2026, Supabase stopped auto-granting Data API access to
+new tables created in `public` — existing tables (everything in this
+project as of that date) keep their grants and are unaffected, but any
+migration that does `create table public.foo (...)` from then on must
+grant access explicitly in the same migration, or supabase-js/PostgREST/
+GraphQL will return "permission denied" for it:
+
+```sql
+grant select
+  on public.foo
+  to anon;
+
+grant select, insert, update, delete
+  on public.foo
+  to authenticated;
+
+grant select, insert, update, delete
+  on public.foo
+  to service_role;
+```
+
+Tune the actual grants per table the same way RLS policies are tuned —
+e.g. a table the public shouldn't read at all just skips the `anon`
+grant. (None of `0001`–`0021` need changes: every table already exists
+and keeps its current grants; this only applies to tables created going
+forward.)
+
 ## Deploying
 
 Push this repository to GitHub, then import it in Vercel (New Project →
