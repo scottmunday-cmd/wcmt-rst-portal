@@ -175,16 +175,19 @@ function ModuleIcon({ moduleSortOrder }: { moduleSortOrder: number }) {
         </g>
       );
     case 6: // Maintenance — a crossed wrench and hammer, single-colour silhouette
-    // style like the reference image Scott sent 21 October 2026 (replacing
-    // the earlier side-by-side wrench + brown-handled hammer).
+    // style like the reference image Scott sent 21 October 2026. Redrawn
+    // larger with a bolder, open-stroke wrench jaw after the first attempt
+    // (a filled hook shape, both tools pivoting close together) read as an
+    // abstract blob at actual on-page size rather than recognisable tools.
       return (
-        <g transform="translate(310,55)">
-          <g transform="rotate(-40)">
-            <path d="M-10 -10 a6 6 0 1 1 8 8 L10 10 L6 14 L-10 -2 Z" fill="#334155" />
+        <g transform="translate(308,53)">
+          <g transform="rotate(-35)">
+            <rect x="-2.5" y="-2" width="5" height="26" rx="2" fill="#334155" />
+            <path d="M-8 -8 a8 8 0 1 1 16 0" fill="none" stroke="#334155" strokeWidth="5" strokeLinecap="round" />
           </g>
-          <g transform="rotate(50)">
-            <rect x="-2.5" y="-6" width="5" height="22" rx="1.5" fill="#334155" />
-            <path d="M-9 -16 H9 V-8 H-9 Z M5 -16 H9 V-11 H7 Z" fill="#334155" fillRule="evenodd" />
+          <g transform="rotate(55)">
+            <rect x="-2.5" y="-4" width="5" height="26" rx="2" fill="#334155" />
+            <rect x="-10" y="-14" width="20" height="10" rx="2.5" fill="#334155" />
           </g>
         </g>
       );
