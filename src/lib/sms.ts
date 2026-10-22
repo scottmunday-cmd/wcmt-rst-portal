@@ -25,8 +25,15 @@ export function fillTemplate(template: string, vars: Record<string, string>): st
 const DEFAULT_TEMPLATES: Record<string, string> = {
   booking_confirmation:
     "Hi {{first_name}}, thanks for booking {{product_name}} with West Coast Marine Training! {{details}} Reply STOP to opt out of SMS.",
+  // Kept in sync with the live sms_templates row by hand — updated
+  // 22 October 2026 at Scott's request to plug the YouTube prep videos,
+  // and switched from em-dashes to plain hyphens while at it: ClickSend
+  // (like most SMS gateways) has to send anything with an em-dash as
+  // UCS-2 (70 chars/segment) instead of GSM-7 (160 chars/segment), so
+  // despite being much longer this version is still only 3 segments —
+  // the same as the old, shorter, em-dash version was.
   assessment_reminder_48h:
-    "Hi {{first_name}}, reminder: your RST Assessment is coming up in 2 days — {{date}} at {{time}}, {{location}}. See you there! — West Coast Marine Training. Reply STOP to opt out.",
+    "Hi {{first_name}}, reminder: your RST Assessment is coming up in 2 days - {{date}} at {{time}}, {{location}}. See you there! If you get time prior to your course booking, please have a look at these short videos - they'll help everything you've learned for your theory test sink in: https://www.youtube.com/@waskipperrecreationalskipp4784 - West Coast Marine Training. Reply STOP to opt out.",
   // Sent to OWNER_MOBILE_NUMBER (Scott), not the student — see the Stripe
   // webhook's checkout.session.completed handler. No "Reply STOP" here;
   // that's only meaningful on messages sent to a customer's own number.
