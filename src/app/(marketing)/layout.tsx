@@ -55,6 +55,22 @@ export default async function MarketingLayout({
       <footer className="border-t border-slate-200 bg-white px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 text-center">
           <Logo variant="full" className="h-24" />
+          {/*
+            Added 30 October 2026 at Scott's request: he wants students
+            contacting him by email over phone, so this sits on every
+            marketing page (unlike the phone number, which stays tucked
+            away at the bottom of the FAQ page only) and is styled a
+            notch more prominently than the fine-print rows below it.
+          */}
+          <p className="font-heading text-sm font-semibold text-wcmt-navy">
+            Questions? Email{" "}
+            <a
+              href="mailto:enquiries@westcoastmarinetraining.com.au"
+              className="underline hover:text-wcmt-coastal"
+            >
+              enquiries@westcoastmarinetraining.com.au
+            </a>
+          </p>
           <ComplianceFooter />
           <p className="text-xs text-slate-400">
             &copy; {new Date().getFullYear()} West Coast Marine Training. All rights reserved.

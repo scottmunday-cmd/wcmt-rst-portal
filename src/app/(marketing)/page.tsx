@@ -89,6 +89,7 @@ export default async function HomePage() {
         description:
           "WA Recreational Skipper's Ticket (RST) training — online theory, in-person practical assessment, and private tuition.",
         telephone: "+61408927905",
+        email: "enquiries@westcoastmarinetraining.com.au",
         address: {
           "@type": "PostalAddress",
           addressLocality: "Two Rocks",

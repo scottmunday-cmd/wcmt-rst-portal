@@ -69,10 +69,22 @@ export default function FaqPage() {
           than this becoming a first port of call and generating a lot of
           sales calls. The homepage's "Request Callback" button (see
           RequestCallbackForm.tsx) is the intended main contact path.
+
+          Reordered 30 October 2026 at Scott's request: he'd rather students
+          email than call, so email leads here (and now also appears
+          site-wide in the footer) while the phone number drops to a
+          secondary "or call" mention, still in this same low-key style.
         */}
         <div className="mt-10 border-t border-slate-200 pt-6 text-center">
           <p className="text-xs text-slate-400">
-            Still have a question? You can reach Scotty directly on{" "}
+            Still have a question? Email Scotty directly at{" "}
+            <a
+              href="mailto:enquiries@westcoastmarinetraining.com.au"
+              className="underline hover:text-wcmt-coastal"
+            >
+              enquiries@westcoastmarinetraining.com.au
+            </a>
+            , or call{" "}
             <a href="tel:+61408927905" className="underline hover:text-wcmt-coastal">
               0408 927 905
             </a>
